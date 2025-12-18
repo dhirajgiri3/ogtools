@@ -26,22 +26,13 @@ import {
     ExportDialog,
     DemoModeSwitcher
 } from '@/modules/workspace/components';
-import { getSlideForgeDemo, SLIDEFORGE_PERSONAS, SLIDEFORGE_SUBREDDITS, SLIDEFORGE_COMPANY } from '@/core/data/personas/demo-data';
+import { SLIDEFORGE_SUBREDDITS, SLIDEFORGE_COMPANY } from '@/core/data/personas/demo-data';
+import { PERSONA_LIBRARY } from '@/core/data/personas/persona-library';
 import { Persona, CompanyContext, WeekCalendar, ScheduledConversation } from '@/core/types';
 import Link from 'next/link';
 import { calendarStorage } from '@/modules/workspace/lib/calendar-storage';
 import { toast } from '@/shared/lib/utils/toast';
 import { ConfirmDialog } from '@/shared/components/ui/feedback/confirm-dialog';
-
-/**
- * Unified Workspace Page
- * 
- * Revolutionary single-page experience combining:
- * - Setup (collapsible left panel)
- * - Calendar (center stage)
- * - Thread Preview (slide-in right panel)
- * - Generation Status (bottom dock)
- */
 
 function WorkspaceLoadingFallback() {
     return (
@@ -103,7 +94,7 @@ function WorkspaceContent() {
     useEffect(() => {
         if (isDemo) {
             setCompany(SLIDEFORGE_COMPANY);
-            setSelectedPersonas(SLIDEFORGE_PERSONAS.map(p => p.id));
+            setSelectedPersonas(PERSONA_LIBRARY.slice(0, 3).map(p => p.id));
             setSelectedSubreddits(SLIDEFORGE_SUBREDDITS);
             setKeywords(SLIDEFORGE_COMPANY.keywords.join(', '));
         }
@@ -162,7 +153,7 @@ function WorkspaceContent() {
         setGenerationStatus('Preparing configuration...');
 
         try {
-            const personas = SLIDEFORGE_PERSONAS.filter(p => selectedPersonas.includes(p.id));
+            const personas = PERSONA_LIBRARY.filter(p => selectedPersonas.includes(p.id));
             const weekNumber = allWeeks.length + 1;
 
             // Sync keywords with company object before sending to API
@@ -460,7 +451,7 @@ function WorkspaceContent() {
         setGenerationStatus('Regenerating with updated setup...');
 
         try {
-            const personas = SLIDEFORGE_PERSONAS.filter(p => selectedPersonas.includes(p.id));
+            const personas = PERSONA_LIBRARY.filter(p => selectedPersonas.includes(p.id));
             const weekToRegenerate = currentWeekIndex;
 
             // Sync keywords with company object before sending to API

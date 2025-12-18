@@ -1,565 +1,676 @@
-## Reddit Mastermind
+# Reddit Mastermind
 
-Reddit Mastermind is a **Reddit content calendar generator** that plans authentic, company‑specific Reddit conversations designed to drive upvotes, views, and inbound leads for real clients – without getting their accounts banned.
+> **AI-Powered Reddit Content Calendar Generator**  
+> Plan authentic, company-specific Reddit conversations designed to drive upvotes, views, and inbound leads – without getting accounts banned.
 
-The system takes **company info, personas, subreddits, targeting queries, and posts per week** and produces a **week-level content calendar** (and subsequent weeks) using a multi‑layer engine:
-
-- **Conversation Design** – structures posts/comments/replies into realistic “threads”
-- **Authenticity Engine** – transforms AI‑perfect text into natural Reddit language
-- **Quality Predictor** – scores each conversation along 5 dimensions
-- **Timing Engine** – schedules posts/comments based on persona behavior
-- **Safety Validator** – enforces frequency, realism, and anti‑spam constraints
-
-This README is intentionally **detailed and comprehensive** so you can use it to:
-
-- **Understand the product** at a product‑manager and senior‑engineer level
-- **Evaluate candidates** on whether they truly grasp the assignment and codebase
-- **Extend the system** safely without breaking the behavior or quality bar
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ---
 
-## 1. Assignment Context & Story
+## 📋 Table of Contents
 
-### 1.1 The story
-
-- **Maddie** is an agency owner running Reddit for clients.
-- When she **creates posts and has her team reply from multiple accounts**, clients get significantly **more inbound**.
-- Today:
-  - She **hand‑builds a content calendar** in a spreadsheet every month.
-  - Her assistant **logs into multiple Reddit accounts** to post and reply.
-- The assignment: **design the planning algorithm** that automates this work.
-  - You can assume **posting/commenting functions already exist**.
-  - Your job is to design and implement the **planning engine + product surface**.
-
-### 1.2 Required inputs
-
-The system must accept at least:
-
-- **Company info**
-- **List of personas (2+)**
-- **Subreddits**
-- **ChatGPT-style queries / keywords to target**
-- **Number of posts per week**
-
-### 1.3 Required outputs
-
-- **A content calendar for the week**, including:
-  - Conversations (posts + comments + replies)
-  - Schedule (when each item should be posted)
-  - Quality & safety metadata
-- **Ability to produce content calendars for subsequent weeks**
-  - In this repo, this is exposed as an **API + UI button** rather than a cron.
-
-### 1.4 Business goal
-
-- Generate **posts and comments so good** they:
-  - Drive **upvotes, views, and inbounds** for clients
-  - Help clients go from **invisible** to having threads that:
-    - Rank on Google
-    - Get cited in **LLM answers** (e.g., ChatGPT)
-- This implies:
-  - Authentic, non‑spammy behavior
-  - Company‑specific, domain‑relevant content
-  - Safety and long‑term account health
-
-### 1.5 What the reviewer cares about
-
-- **Ownership** – Could we trust you to own this problem end‑to‑end?
-- **Product mindset** – Is this something you’d be proud to ship to real clients?
-- **Quality over speed** – It’s better to ship fewer, high‑quality features than a wide but shallow surface.
-- **Testing and evaluation** – Are you proactively testing:
-  - Different personas / subreddits / companies
-  - Edge cases (overposting, repetitive content, awkward persona interplay)
-  - Quality (e.g. “3/10 vs 9/10” conversations)
-
-This repo is built to **directly satisfy** these requirements.
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Assignment Context](#assignment-context)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+- [API Documentation](#api-documentation)
+- [Testing & QA](#testing--qa)
+- [Project Structure](#project-structure)
+- [Evaluation Guide](#evaluation-guide)
+- [Development Guidelines](#development-guidelines)
 
 ---
 
-## 2. Tech Stack
+## 🎯 Overview
 
-- **App**: Next.js App Router, React, TypeScript
-- **Data & Storage (ready)**: Supabase client wired, ready for persistence
-- **Design**:
-  - Tailwind CSS
-  - shadcn-style UI components
-  - Custom design tokens and micro‑interactions
-- **AI / Algorithms**:
-  - OpenAI client (mocked in tests so tests don’t call real APIs)
-  - Internal multi‑layer algorithm stack under `src/core/algorithms`
-- **Testing & QA**:
-  - Jest (+ Testing Library where appropriate)
-  - Algorithm-level tests (authenticity, quality, safety, timing, similarity)
-  - CLI QA tools that hit the real API routes
+Reddit Mastermind is a **production-grade Reddit content calendar generator** that automates the planning of authentic, multi-persona Reddit conversations for businesses and agencies.
 
----
+### The Problem
 
-## 3. Inputs & Outputs (Formal Contract)
+Marketing agencies manually create Reddit content calendars in spreadsheets, then log into multiple accounts to post and reply. This is:
+- **Time-consuming** – Hours spent planning and executing each week
+- **Error-prone** – Easy to overpost, sound spammy, or get accounts banned
+- **Unscalable** – Can't serve multiple clients without massive overhead
 
-### 3.1 Core input: `GenerationInput`
+### The Solution
 
-The main API contract uses a `GenerationInput` type (simplified here):
-
-- **Company info**
-  - Name
-  - Product description
-  - Value propositions
-  - Keywords / Targeting details
-- **Personas** (2+)
-  - Persona id, name, role
-  - Backstory
-  - Vocabulary and communication style
-  - Reddit behavior pattern (timing profile)
-- **Subreddits**
-  - Target subreddit list (e.g. `r/productivity`, `r/startups`)
-- **Keywords / queries**
-  - List of text queries / keywords to influence topics
-- **Posts per week**
-  - Number of conversations to generate in the target week
-- **Optional context**
-  - `weekNumber`
-  - `previousWeeks` (for multi‑week planning)
-
-All of these are strongly typed under `src/core/types`.
-
-### 3.2 Core output: `WeekCalendar`
-
-The `/api/generate` route returns a `WeekCalendar`, which includes:
-
-- **weekNumber** – which week in the campaign (1, 2, 3, …)
-- **conversations** – each is a **scheduled conversation**:
-  - Post (with persona, subreddit, content, quality metadata, schedule)
-  - Top-level comments
-  - Replies (nested)
-  - Timestamps for each event (from Timing Engine)
-- **averageQuality** – average quality score across conversations
-- **safetyReport** – Safety Validator result for the calendar
-- **metadata**:
-  - `generatedAt`
-  - `totalConversations`
-  - `subredditDistribution` (how many posts per subreddit)
-  - `personaUsage` (how often each persona appears)
-
-This is the **planning output** that other systems (posting bots, dashboards) can consume.
+Reddit Mastermind uses a **6-layer AI planning engine** to automatically generate:
+- ✅ **Authentic conversations** that sound like real humans, not AI
+- ✅ **Multi-persona threads** with realistic timing and interactions
+- ✅ **Quality-scored content** with predictable engagement potential
+- ✅ **Safety-validated calendars** that protect account health
+- ✅ **Week-by-week schedules** with chronological event timelines
 
 ---
 
-## 4. Algorithm Architecture (6‑Layer System)
+## ✨ Key Features
 
-All core logic lives under `src/core/algorithms`.
+### 🧠 **Intelligent Conversation Design**
+- **Arc Templates**: Discovery, Comparison, Problem-Solver, and more
+- **Multi-persona orchestration**: Realistic interactions between 2+ personas
+- **Subreddit-aware prompts**: Adapts to community norms and culture
 
-### 4.1 Layer 1 – Data & Types
+### 🎭 **Authenticity Engine**
+- **Subreddit calibration**: Professional vs. casual tone matching
+- **Human imperfections**: Typos, informal contractions, lowercase "i"
+- **Reddit culture markers**: "lol", "tbh", "ngl", trailing dots, emphatic caps
+- **Personality injection**: Persona-specific vocabulary and speech patterns
 
+### 📊 **Quality Prediction (0-100 Score)**
+Five-dimensional scoring system:
+1. **Subreddit Relevance** (0-20) – On-topic and community-aligned
+2. **Problem Specificity** (0-20) – Concrete, relatable details
+3. **Authenticity** (0-25) – Avoids AI patterns, feels human
+4. **Value-First Behavior** (0-20) – Subtle, delayed product mentions
+5. **Engagement Design** (0-15) – Invites real conversation
+
+### ⏰ **Realistic Timing Engine**
+- **Persona timing profiles**: Active windows, peak hours, weekend behavior
+- **Human-like delays**: Comments 15-45 min after posts, not instant
+- **Distribution algorithms**: Avoids clustering and regular patterns
+
+### 🛡️ **Safety Validation**
+- **Frequency limits**: Max posts per subreddit/persona/week
+- **Timing realism**: No instant back-to-back activity
+- **Collusion detection**: Identifies suspicious co-posting patterns
+- **Content similarity checks**: Prevents repetitive posts
+
+### 🎨 **Premium UI/UX**
+- **Modern design system**: Glassmorphism, gradients, micro-animations
+- **Responsive workspace**: Mobile, tablet, and desktop optimized
+- **Real-time generation**: Live progress tracking and status updates
+- **Export functionality**: JSON, CSV, and formatted calendar exports
+- **Demo mode**: Pre-loaded SlideForge example data
+
+---
+
+## 📖 Assignment Context
+
+### The Story
+
+**Maddie** is an agency owner running Reddit marketing for clients. When she creates posts and has her team reply from multiple accounts, clients get significantly more inbound leads.
+
+**Today's workflow:**
+1. Hand-build content calendar in spreadsheet (hours per week)
+2. Assistant logs into multiple Reddit accounts
+3. Manually post and reply following the calendar
+4. Hope nothing gets flagged as spam
+
+**The Assignment:**
+Design and implement the **planning algorithm** that automates this work. Assume posting/commenting functions exist – focus on the **planning engine + product surface**.
+
+### Required Inputs
+- ✅ Company information (name, product, value props, keywords)
+- ✅ List of personas (2+) with backstories and communication styles
+- ✅ Target subreddits (e.g., r/productivity, r/startups)
+- ✅ ChatGPT-style queries/keywords to target
+- ✅ Number of posts per week
+
+### Required Outputs
+- ✅ Content calendar for the week (conversations + schedule + metadata)
+- ✅ Ability to generate subsequent weeks (Week 2, 3, 4...)
+- ✅ Quality and safety reports for each calendar
+
+### Business Goals
+- 🎯 Drive **upvotes, views, and inbound leads**
+- 🎯 Help clients rank on **Google** and get cited in **LLM answers**
+- 🎯 Maintain **long-term account health** (no bans)
+- 🎯 Generate **authentic, non-spammy** content
+
+### Evaluation Criteria
+- **Ownership**: Could we trust you to own this end-to-end?
+- **Product mindset**: Would you be proud to ship this to real clients?
+- **Quality over speed**: Better to ship fewer high-quality features
+- **Testing rigor**: Proactive testing of edge cases and quality
+
+---
+
+## 🛠️ Tech Stack
+
+### Core Framework
+- **Next.js 14** – App Router, React Server Components
+- **TypeScript** – Strict typing throughout
+- **React 18** – Modern hooks and patterns
+
+### Styling & UI
+- **Tailwind CSS** – Utility-first styling
+- **shadcn/ui** – High-quality component primitives
+- **Framer Motion** – Smooth animations and transitions
+- **Custom design tokens** – Consistent spacing, colors, typography
+
+### AI & Algorithms
+- **OpenAI API** – GPT-4 for content generation (mocked in tests)
+- **Custom algorithm stack** – 6-layer planning engine
+- **Prompt engineering** – Subreddit-aware, persona-driven prompts
+
+### Data & Storage
+- **Supabase** – Client wired and ready for persistence
+- **Local state management** – React hooks + context
+- **Type-safe contracts** – Zod validation schemas
+
+### Testing & QA
+- **Jest** – Unit and integration tests
+- **Testing Library** – Component testing
+- **Custom QA scripts** – API scenario testing
+- **Coverage reporting** – Comprehensive test coverage
+
+---
+
+## 🏗️ Architecture
+
+### 6-Layer Planning Engine
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    API Layer (/api/*)                   │
+│  /generate  |  /regenerate  |  /validate                │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│              Orchestration & Workflow Logic             │
+│  Input validation → Generation loop → Scheduling        │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│                  Layer 6: Safety Validator              │
+│  Frequency limits | Timing realism | Collusion detection│
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│                  Layer 5: Timing Engine                 │
+│  Persona schedules | Human-like delays | Distribution   │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│                 Layer 4: Quality Predictor              │
+│  5-dimension scoring | Grade assignment | Issue detection│
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│                Layer 3: Authenticity Engine             │
+│  Subreddit calibration | Imperfections | Reddit markers │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│              Layer 2: Conversation Designer             │
+│  Arc templates | Persona mapping | Prompt building      │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│                 Layer 1: Data & Types                   │
+│  Type definitions | Persona library | Subreddit profiles│
+└─────────────────────────────────────────────────────────┘
+```
+
+### Layer Details
+
+#### **Layer 1: Data & Types**
 - **Location**: `src/core/types`, `src/core/data/**`
-- **Responsibility**:
-  - Strongly typed models for `CompanyContext`, `Persona`, `SubredditContext`,
-    `ConversationThread`, `QualityScore`, `SafetyReport`, `WeekCalendar`, etc.
-  - Static data:
-    - Persona library, timing patterns
-    - Subreddit profiles
-    - Prompt examples and Reddit writing patterns
+- **Purpose**: Type-safe contracts and static data
+- **Key files**:
+  - `persona-library.ts` – 20+ pre-built personas
+  - `subreddit-profiles.ts` – 30+ subreddit configurations
+  - `types/index.ts` – All domain models
 
-This layer makes everything **explicit and type‑safe**, which is important for both engine quality and long‑term maintainability.
-
-### 4.2 Layer 2 – Conversation Designer
-
+#### **Layer 2: Conversation Designer**
 - **Location**: `src/core/algorithms/conversation/**`
-- **Key responsibilities**:
-  - Define **arc templates** (e.g. Discovery, Comparison, Problem‑Solver) that specify:
-    - Post tone and structure
-    - Comment purposes (empathy, advice, tool mention, etc.)
-    - Reply roles (OP vs commenters)
-  - Map **personas to roles**:
-    - Choose which persona posts
-    - Which personas reply, and how often
-  - Build **prompts** for the underlying LLM (conceptually – tests mock the LLM):
-    - Persona backstory and vocabulary
-    - Subreddit norms (tone, formality)
-    - Specific task and framing
+- **Purpose**: Structure realistic multi-persona threads
+- **Features**:
+  - Arc templates (Discovery, Comparison, Problem-Solver, etc.)
+  - Persona-to-role mapping
+  - Subreddit-aware prompt construction
 
-This layer ensures that conversations feel like **real threads**, not flat one‑shot posts.
-
-### 4.3 Layer 3 – Authenticity Engine
-
+#### **Layer 3: Authenticity Engine**
 - **Location**: `src/core/algorithms/authenticity/engine.ts`
-- **Goal**: Turn “AI‑perfect” text into something that feels like Reddit:
-  - Imperfect, varied, and persona‑consistent
-  - Aligned with subreddit culture (casual vs professional)
+- **Purpose**: Transform AI-perfect text into natural Reddit language
+- **Transformations**:
+  - Subreddit calibration (professional vs. casual)
+  - Human imperfections (typos, informal contractions)
+  - Reddit culture markers ("lol", "tbh", "ngl", etc.)
+  - Personality injection (persona-specific vocab)
 
-Key behaviors:
-
-- **Subreddit calibration**
-  - Professional subs: fewer casual markers, more formality and detail
-  - Casual subs: more slang, imperfections, conversational style
-- **Human imperfections**
-  - Lowercase “i”
-  - Occasional missing punctuation
-  - Common typos and informal contractions
-- **Personality markers**
-  - Persona‑specific phrases and vocab (e.g., “honestly”, “ngl”, “framework”)
-- **Reddit culture markers**
-  - “lol”, “lmao”, “tbh”, “ngl”, trailing `...`, emphatic caps, etc.
-- **Structure breaking**
-  - Breaks perfect bullet/numbered lists into more natural prose
-  - Inserts asides and small digressions
-
-There is a dedicated test suite to ensure:
-
-- Transformations **sometimes change** the text
-- They **preserve meaning**
-- They’re **calibrated by subreddit** and persona
-
-### 4.4 Layer 4 – Quality Predictor
-
+#### **Layer 4: Quality Predictor**
 - **Location**: `src/core/algorithms/quality/predictor.ts`
-- **Goal**: Score each conversation on a **0–100** scale across 5 dimensions:
+- **Purpose**: Score conversations on 0-100 scale
+- **Dimensions**:
+  1. Subreddit Relevance (0-20)
+  2. Problem Specificity (0-20)
+  3. Authenticity (0-25)
+  4. Value-First Behavior (0-20)
+  5. Engagement Design (0-15)
 
-- **Subreddit Relevance (0–20)**  
-  Is the content on‑topic and aligned with subreddit norms?
-
-- **Problem Specificity (0–20)**  
-  Does the post express a concrete, relatable problem with real details?
-
-- **Authenticity (0–25)**  
-  Does it avoid obvious AI patterns and feel like a real human wrote it?
-
-- **Value‑First Behavior (0–20)**  
-  Is the product mention delayed, subtle, and value‑oriented?
-
-- **Engagement Design (0–15)**  
-  Does the thread invite real conversation (questions, multiple perspectives)?
-
-Outputs:
-
-- `overall` score (0–100)
-- Dimension breakdown
-- `grade` (excellent / good / fair / poor)
-- Structured `issues` and `strengths` for UI to render
-
-This makes it possible to say: **“This is a 3/10 vs 9/10 calendar”** in a repeatable way.
-
-### 4.5 Layer 5 – Timing Engine
-
+#### **Layer 5: Timing Engine**
 - **Location**: `src/core/algorithms/timing/**`
-- **Goal**: Generate **realistic schedules** for posts, comments, and replies.
+- **Purpose**: Generate realistic schedules
+- **Features**:
+  - Persona timing profiles (active windows, peaks)
+  - Human-like delays (15-45 min for first comment)
+  - Distribution algorithms (avoid clustering)
 
-Main concepts:
-
-- **PersonaTiming profiles**
-  - Active windows (e.g. 8–11, 13–17)
-  - Peak hours
-  - Weekend behavior
-  - Typical response delay ranges
-- **Post scheduling**
-  - Distributes posts across the week
-  - Uses persona’s active windows and peaks
-  - Avoids clustering and overly regular patterns
-- **Comment / reply timing**
-  - Uses arc timing ranges (e.g. first comment 15–45 minutes later)
-  - Ensures comments aren’t instant and follow human‑like delays
-
-The result is a chronological list of events that **feels like real human activity**.
-
-### 4.6 Layer 6 – Safety Validator
-
+#### **Layer 6: Safety Validator**
 - **Location**: `src/core/algorithms/safety/validator.ts`
-- **Goal**: Enforce rules that protect client accounts and avoid spam patterns.
-
-Checks include:
-
-- **Account readiness** (mocked data for assignment)
-  - Minimum account age, karma, prior activity
-- **Frequency limits**
-  - Max posts per subreddit per week/day
-  - Max posts per persona per week
-  - Product mention frequency limits
-- **Timing realism**
-  - No instant back‑to‑back from the same persona
-  - Sufficient variance between events
-- **Collusion detection**
-  - Detect suspicious co‑posting patterns across personas
-- **Content similarity**
-  - Detect repetitive posts/comments across the calendar
-
-Output is a `SafetyReport` with:
-
-- `passed` flag
-- `overallRisk` (`low`, `medium`, `high`, `critical`)
-- Detailed `checks`, `violations`, `warnings`, and `recommendations`
+- **Purpose**: Enforce anti-spam rules
+- **Checks**:
+  - Frequency limits (max posts per subreddit/persona/week)
+  - Timing realism (no instant back-to-back)
+  - Collusion detection (suspicious co-posting)
+  - Content similarity (repetitive posts)
 
 ---
 
-## 5. Orchestration & API Layer
+## 🚀 Getting Started
 
-### 5.1 `/api/generate`
+### Prerequisites
+- **Node.js** 18+ and npm
+- **OpenAI API key** (for production use)
 
-- **Route**: `src/app/api/generate/route.ts`
-- **Responsibility**:
-  - Validate and parse `GenerationInput`
-  - For each requested post:
-    - Select arc type and subreddit
-    - Call Conversation Designer to generate a base conversation
-    - Run Authenticity Engine on post/comments/replies
-    - Run Quality Predictor
-    - Optionally re‑generate (up to a limit) if below quality threshold
-  - Run Timing Engine to schedule conversations
-  - Run Safety Validator on the full schedule
-  - Return a `WeekCalendar`
-
-### 5.2 `/api/validate`
-
-- **Route**: `src/app/api/validate/route.ts`
-- **Responsibility**:
-  - Accept conversations (e.g., after edits)
-  - Re‑run safety validation
-  - Return an updated `SafetyReport`
-
-### 5.3 `/api/regenerate`
-
-- **Route**: `src/app/api/regenerate/route.ts`
-- **Responsibility**:
-  - Regenerate specific conversations or a subset with updated constraints
-  - Useful in a review/approval workflow
-
----
-
-## 6. UI & User Flows
-
-### 6.1 Marketing site
-
-- **Route group**: `src/app/(marketing)`
-- **Purpose**:
-  - Explain the value proposition
-  - Show before/after authenticity differences
-  - Funnel users into the workspace
-
-### 6.2 Workspace (core product)
-
-- **Route**: `src/app/(platform)/workspace/page.tsx`
-- **Main pieces** (via `src/modules/workspace`):
-
-- **Setup Panel**
-  - Enter company info, value props, keywords
-  - Select personas and subreddits
-  - Choose posts per week and quality threshold
-  - Demo mode using SlideForge data
-  - “Clear All Data & Start Fresh” to reset local state
-
-- **Thread Panel**
-  - Shows generated conversations
-  - Quality and safety chips for each conversation
-  - Ability to inspect posts, comments, and replies
-
-- **Overlays / Export**
-  - `ExportDialog` for exporting the calendar
-  - Shared components (badges, tooltips, dialogs) from `src/shared/components`
-
-The UI is designed to be something you could put in front of **real agency users**.
-
----
-
-## 7. Running the App Locally
-
-### 7.1 Install dependencies
+### Installation
 
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd reddit-mastermind
+
+# Install dependencies
 npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Edit .env.local and add your OPENAI_API_KEY
 ```
 
-### 7.2 Start the dev server
+### Environment Configuration
+
+Create `.env.local` in the project root:
 
 ```bash
-npm run dev
-```
+# Required for production content generation
+OPENAI_API_KEY=your_openai_api_key_here
 
-Then open `http://localhost:3000` in your browser.
-
-- **Marketing site**: `/(marketing)`
-- **Workspace (core product)**: `/(platform)/workspace`
-
----
-
-## 8. Environment Configuration
-
-Create a `.env.local` in the project root for any required keys (OpenAI/Gemini if wired in your environment):
-
-```bash
-OPENAI_API_KEY=your_key_here
+# Optional
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-Notes:
+**Note**: Tests mock the LLM calls, so you can run `npm test` without an API key.
 
-- In this repo, **tests mock** the LLM calls so you can run `npm test` without a real API key.
-- For actual generation in development, you’d configure the appropriate LLM key and wire it in the `openai-client` or equivalent.
+### Development Server
+
+```bash
+# Start the development server
+npm run dev
+
+# Open in browser
+# http://localhost:3000
+```
+
+### Build for Production
+
+```bash
+# Create production build
+npm run build
+
+# Start production server
+npm start
+```
 
 ---
 
-## 9. Testing & QA
+## 📡 API Documentation
 
-### 9.1 Jest test suite
+### `POST /api/generate`
 
-Run the Jest tests:
+Generate a content calendar for a specific week.
+
+**Request Body:**
+```typescript
+{
+  company: {
+    name: string;
+    product: string;
+    valuePropositions: string[];
+    keywords: string[];
+  };
+  personas: Persona[];  // 2+ personas
+  subreddits: string[];  // e.g., ["r/productivity", "r/startups"]
+  keywords: string[];  // Targeting queries
+  postsPerWeek: number;  // e.g., 5
+  weekNumber?: number;  // Default: 1
+  previousWeeks?: WeekCalendar[];  // For multi-week context
+  qualityThreshold?: number;  // 0-100, default: 60
+}
+```
+
+**Response:**
+```typescript
+{
+  weekNumber: number;
+  conversations: ConversationThread[];
+  averageQuality: number;
+  safetyReport: SafetyReport;
+  metadata: {
+    generatedAt: string;
+    totalConversations: number;
+    subredditDistribution: Record<string, number>;
+    personaUsage: Record<string, number>;
+  };
+}
+```
+
+### `POST /api/regenerate`
+
+Regenerate specific conversations with updated constraints.
+
+**Request Body:**
+```typescript
+{
+  conversationIds: string[];
+  input: GenerationInput;
+  qualityThreshold?: number;
+}
+```
+
+### `POST /api/validate`
+
+Re-run safety validation on edited conversations.
+
+**Request Body:**
+```typescript
+{
+  conversations: ConversationThread[];
+  personas: Persona[];
+}
+```
+
+**Response:**
+```typescript
+{
+  safetyReport: SafetyReport;
+}
+```
+
+---
+
+## 🧪 Testing & QA
+
+### Unit & Integration Tests
 
 ```bash
+# Run all tests
 npm test
-# or
+
+# Watch mode (recommended during development)
 npm run test:watch
-# or
+
+# Coverage report
 npm run test:coverage
 ```
 
-The suite focuses on:
+**Test Coverage:**
+- ✅ Authenticity Engine transformations
+- ✅ Quality Predictor scoring logic
+- ✅ Safety Validator rules
+- ✅ Timing Engine scheduling
+- ✅ Text similarity and variance calculations
+- ✅ End-to-end API contracts
 
-- **Core algorithms** – under `src/core/algorithms/**`
-  - Authenticity Engine behavior
-  - Quality Predictor dimensions
-  - Safety Validator rules
-  - Timing Engine scheduling utilities
-- **Data & utils** – under `src/shared/lib/utils/**`
-  - Text similarity and repeated‑phrase detection
-  - Style variance calculations
-- **End‑to‑end contracts** – under `src/__tests__/e2e/**`
-  - Validation that `GenerationInput` and `WeekCalendar` behave as designed
-  - Week progression, multi‑week context, and safety/quality presence
+### API Scenario Testing
 
-These tests ensure the **planning algorithm is stable and predictable**.
+```bash
+# Start dev server first
+npm run dev
 
-### 9.2 API QA scripts
+# In another terminal, run API tests
+npm run test:api
+```
 
-These scripts hit the **real Next.js API**. Make sure `npm run dev` (or `npm start` with a build) is running on port `3000`.
+**What it tests:**
+- Multiple company types (SaaS, DTC, B2B)
+- Different persona combinations
+- Various subreddit targets
+- Edge cases (overposting, repetition, quality thresholds)
 
-- **Comprehensive API scenarios**:
-
-  ```bash
-  npm run test:api
-  ```
-
-  What it does:
-
-  - Sends multiple scenario payloads to `/api/generate` (different companies/personas/subreddits)
-  - Writes JSON results to `test-results/` (if you choose to persist outputs)
-
-These scripts are how you **manually probe** the system for edge cases:
-
-- Over‑ or under‑posting per subreddit
-- Repetitive phrases across conversations
-- Domain drift (wrong domain, e.g. slide content for an HR tool)
+**Output:**
+- JSON results in `test-results/` directory
+- Console logs with quality and safety analysis
 
 ---
 
-## 10. Project Structure (High Level)
+## 📁 Project Structure
 
-- **`src/app`** – Next.js app routes:
-  - `/(marketing)` – marketing pages
-  - `/(platform)/workspace` – main product workspace
-  - `/api/generate` – main generation endpoint (planning algorithm output)
-  - `/api/regenerate` – regenerate subsets
-  - `/api/validate` – safety validator endpoint
-
-- **`src/core`** – domain logic and algorithms:
-  - `algorithms/` – authenticity, quality, timing, safety, orchestration
-  - `data/` – personas, subreddit profiles, prompts, demo companies
-  - `types/` – all shared domain types
-  - `errors/`, `config/`, `validation/` – supporting infrastructure
-
-- **`src/modules`** – feature modules:
-  - `landing/` – marketing UI sections and hero
-  - `workspace/` – setup panels, thread views, export overlays
-
-- **`src/shared`** – shared libraries and components:
-  - `components/ui/` – shadcn‑style UI primitives (buttons, dialogs, inputs, etc.)
-  - `lib/api/openai-client.ts` – LLM client wrapper (mocked in tests)
-  - `lib/utils/` – text similarity, UI helpers, toasts, etc.
-  - `styles/` – design tokens and animation helpers
-
-- **Root QA tools**:
-  - `test-api.js` – scenario‑based API testing
-  - `test-data/` – JSON fixtures for API scenarios
-
----
-
-## 11. How to Evaluate the Calendar (3/10 vs 9/10)
-
-When reviewing output (either as a candidate or reviewer), focus on:
-
-- **1. Authenticity**
-  - Does the language feel like real Reddit, or like a polished blog post?
-  - Are there small imperfections and personality markers?
-- **2. Problem framing**
-  - Is each post about a **specific, believable problem**?
-  - Are there concrete details (time spent, metrics, deadlines, context)?
-- **3. Value‑first product behavior**
-  - Are product mentions **delayed and subtle**, not salesy?
-  - Do comments provide real advice even if no product is mentioned?
-- **4. Variety**
-  - Are conversations meaningfully different across the week?
-  - Do personas sound and behave differently from each other?
-- **5. Safety**
-  - Is there any obvious overposting in a single subreddit?
-  - Are timing intervals and persona interactions believable?
-
-Use the **Quality Predictor** output and **Safety Report** as a structured lens, but also trust your own product sense.
-
----
-
-## 12. Assignment Mapping Checklist
-
-This section maps the original assignment bullets to implementation.
-
-- **Inputs**
-  - **Company info** – `CompanyContext` + workspace setup form
-  - **2+ personas** – Persona library + selection in workspace
-  - **Subreddits** – Subreddit profiles + selection in workspace
-  - **ChatGPT queries to target** – Keywords / queries passed into the generator
-  - **Number of posts per week** – `postsPerWeek` in `GenerationInput`
-
-- **Outputs**
-  - **Content calendar for the week** – `WeekCalendar` from `/api/generate`
-  - **Subsequent weeks** – `weekNumber` + `previousWeeks` context and ability to call the endpoint for Week 2, 3, etc. (triggered by a button instead of cron)
-
-- **Business goal**
-  - **Drive upvotes/views/inbounds** – Achieved via:
-    - Authenticity Engine
-    - Quality Predictor prioritizing engagement design & value‑first behavior
-    - Subreddit‑aware prompts and behavior
-  - **Long‑term visibility (Google/LLMs)** – Focus on high‑quality, realistic threads that could be naturally linked and surfaced over time.
-
-- **Quality**
-  - **Natural conversation** – Multi‑persona threads with empathy, advice, and back‑and‑forth dynamics
-  - **Real vs manufactured** – Intentional imperfections, persona consistency, and subreddit calibration
-
-- **Testing**
-  - **Proactive testing** – Jest algorithm tests + API QA scripts
-  - **Vary personas/subreddits/companies** – Multiple scenarios and test data sets
-  - **Catch edge cases (overposting, overlap, awkward personas)** – Safety Validator + similarity checks
-  - **Quality evaluation** – Quality Predictor + manual checks described above
-
-If you’re reviewing a candidate, this checklist is a good way to see whether they can:
-
-- Read and understand a complex, layered system
-- Reason about authenticity, safety, and quality
-- Extend or modify the planning algorithm without breaking its guarantees
+```
+reddit-mastermind/
+├── src/
+│   ├── app/                          # Next.js App Router
+│   │   ├── (marketing)/              # Marketing pages
+│   │   │   └── page.tsx              # Landing page
+│   │   ├── (platform)/               # Authenticated platform
+│   │   │   └── workspace/            # Main workspace
+│   │   │       └── page.tsx          # Calendar generation UI
+│   │   └── api/                      # API routes
+│   │       ├── generate/             # Main generation endpoint
+│   │       ├── regenerate/           # Regenerate conversations
+│   │       └── validate/             # Safety validation
+│   │
+│   ├── core/                         # Domain logic & algorithms
+│   │   ├── algorithms/               # 6-layer planning engine
+│   │   │   ├── authenticity/         # Layer 3: Authenticity Engine
+│   │   │   ├── conversation/         # Layer 2: Conversation Designer
+│   │   │   ├── quality/              # Layer 4: Quality Predictor
+│   │   │   ├── safety/               # Layer 6: Safety Validator
+│   │   │   ├── timing/               # Layer 5: Timing Engine
+│   │   │   └── orchestration/        # Workflow orchestration
+│   │   ├── data/                     # Static data & libraries
+│   │   │   ├── personas/             # Persona library (20+ personas)
+│   │   │   ├── subreddits/           # Subreddit profiles (30+)
+│   │   │   ├── prompts/              # Prompt templates
+│   │   │   └── demo/                 # Demo company data
+│   │   ├── types/                    # TypeScript type definitions
+│   │   ├── validation/               # Zod schemas
+│   │   ├── config/                   # Configuration constants
+│   │   └── errors/                   # Custom error classes
+│   │
+│   ├── modules/                      # Feature modules
+│   │   ├── landing/                  # Marketing site components
+│   │   │   └── components/           # Hero, features, etc.
+│   │   └── workspace/                # Workspace feature
+│   │       ├── components/           # Setup panel, calendar, threads
+│   │       └── lib/                  # Workspace utilities
+│   │
+│   └── shared/                       # Shared libraries & components
+│       ├── components/ui/            # shadcn/ui primitives
+│       ├── lib/                      # Utilities
+│       │   ├── api/                  # API clients (OpenAI, etc.)
+│       │   └── utils/                # Text similarity, helpers
+│       └── styles/                   # Design tokens, animations
+│
+├── test-data/                        # API test scenarios
+├── test-results/                     # API test outputs
+├── test-api.js                       # API QA script
+└── README.md                         # This file
+```
 
 ---
 
-## 13. Working on This Project
+## 📊 Evaluation Guide
 
-- **Code style**
-  - TypeScript, strict types wherever practical
-  - Clear separation between **core algorithms** and **UI**
-  - Short, focused functions with JSDoc where behavior is non‑obvious
-- **When adding features**
-  - Update `GenerationInput` / `WeekCalendar` types as needed
-  - Add or extend tests in the relevant algorithm area
-  - Consider how the change affects:
-    - Authenticity
-    - Quality scoring
-    - Safety rules
-    - Timing realism
-- **When evaluating changes**
-  - Run `npm test` for algorithm regressions
-  - Run `npm run test:api` and inspect results for sanity
-  - Manually use the workspace UI with multiple companies/personas/subreddits
+### How to Evaluate a Calendar (3/10 vs 9/10)
 
-Treat this as a **real client‑facing product**, not just an assignment demo. The entire structure is designed so a senior engineer could confidently take full ownership and evolve it over time.
+When reviewing generated content, focus on these dimensions:
+
+#### **1. Authenticity (Does it feel human?)**
+- ❌ **Bad**: "I would recommend utilizing this productivity tool for optimal workflow management."
+- ✅ **Good**: "honestly i've been using this for a few weeks and it's been pretty solid for keeping track of stuff"
+
+**Check for:**
+- Small imperfections (typos, informal contractions)
+- Personality markers (persona-specific vocab)
+- Reddit culture ("lol", "tbh", "ngl", etc.)
+- Natural flow (not overly structured)
+
+#### **2. Problem Specificity (Is it concrete?)**
+- ❌ **Bad**: "I need a better way to manage my tasks."
+- ✅ **Good**: "i'm drowning in like 3 different spreadsheets for client work and keep missing deadlines... spent 2 hours yesterday just figuring out what i was supposed to do"
+
+**Check for:**
+- Concrete details (time spent, metrics, deadlines)
+- Relatable context (specific pain points)
+- Real-world scenarios (not generic)
+
+#### **3. Value-First Behavior (Is it subtle?)**
+- ❌ **Bad**: "You should try [Product]! It's the best solution for this."
+- ✅ **Good**: "i ended up trying a few different things... one that worked for me was [product] but honestly the key was just having everything in one place"
+
+**Check for:**
+- Delayed product mentions (not in first comment)
+- Casual, non-salesy tone
+- Value-oriented framing (how it helped, not features)
+
+#### **4. Variety (Are conversations different?)**
+- ❌ **Bad**: All posts start with "I'm struggling with..." and mention product in comment 2
+- ✅ **Good**: Mix of discovery questions, comparison posts, problem-solving threads
+
+**Check for:**
+- Different arc templates used
+- Varied conversation structures
+- Distinct persona voices
+
+#### **5. Safety (Is it sustainable?)**
+- ❌ **Bad**: 5 posts in r/productivity in one day, all from same persona
+- ✅ **Good**: Distributed across subreddits, realistic timing, varied personas
+
+**Check for:**
+- No overposting in single subreddit
+- Realistic timing intervals (not instant replies)
+- Believable persona interactions
+
+### Quality Score Interpretation
+
+| Score | Grade | Interpretation |
+|-------|-------|----------------|
+| 80-100 | Excellent | Ship immediately, high engagement potential |
+| 60-79 | Good | Solid quality, minor tweaks may improve |
+| 40-59 | Fair | Needs revision, some obvious issues |
+| 0-39 | Poor | Major problems, regenerate recommended |
+
+### Safety Risk Levels
+
+| Risk | Interpretation | Action |
+|------|----------------|--------|
+| Low | Safe to execute, no red flags | Proceed |
+| Medium | Minor concerns, monitor closely | Review warnings |
+| High | Significant issues, revise before posting | Fix violations |
+| Critical | Do not post, account ban risk | Regenerate |
+
+---
+
+## 💻 Development Guidelines
+
+### Code Style
+
+- **TypeScript**: Strict typing throughout, no `any` unless absolutely necessary
+- **Separation of concerns**: Core algorithms separate from UI
+- **Function size**: Short, focused functions (< 50 lines ideal)
+- **Documentation**: JSDoc for non-obvious behavior
+
+### Adding Features
+
+When extending the system:
+
+1. **Update types** in `src/core/types` if needed
+2. **Add tests** in the relevant algorithm area
+3. **Consider impact** on:
+   - Authenticity (will it sound natural?)
+   - Quality scoring (does it improve engagement?)
+   - Safety rules (does it introduce spam risk?)
+   - Timing realism (does it feel human?)
+
+### Testing Changes
+
+Before committing:
+
+```bash
+# 1. Run unit tests
+npm test
+
+# 2. Run API scenario tests
+npm run test:api
+
+# 3. Manual UI testing
+npm run dev
+# Test with multiple companies/personas/subreddits in workspace
+```
+
+### Commit Guidelines
+
+- **Conventional commits**: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`
+- **Descriptive messages**: Explain the "why", not just the "what"
+- **Atomic commits**: One logical change per commit
+
+---
+
+## 🎓 Assignment Mapping Checklist
+
+This section maps the original assignment requirements to implementation:
+
+### ✅ Required Inputs
+- [x] **Company info** → `CompanyContext` type + workspace setup form
+- [x] **2+ personas** → Persona library (20+) + selection UI
+- [x] **Subreddits** → Subreddit profiles (30+) + multi-select
+- [x] **ChatGPT queries** → Keywords/queries in `GenerationInput`
+- [x] **Posts per week** → `postsPerWeek` parameter
+
+### ✅ Required Outputs
+- [x] **Content calendar for the week** → `WeekCalendar` from `/api/generate`
+- [x] **Subsequent weeks** → `weekNumber` + `previousWeeks` context
+- [x] **Schedule** → Timing Engine generates chronological events
+- [x] **Quality metadata** → Quality Predictor scores each conversation
+- [x] **Safety metadata** → Safety Validator produces detailed reports
+
+### ✅ Business Goals
+- [x] **Drive upvotes/views/inbounds** → Authenticity + Quality engines
+- [x] **Rank on Google/LLMs** → High-quality, linkable threads
+- [x] **Long-term account health** → Safety Validator enforces limits
+- [x] **Authentic, non-spammy** → Multi-layer authenticity transformations
+
+### ✅ Quality & Testing
+- [x] **Natural conversation** → Multi-persona threads with realistic dynamics
+- [x] **Real vs manufactured** → Intentional imperfections, persona consistency
+- [x] **Proactive testing** → Jest tests + API QA scripts
+- [x] **Vary inputs** → Multiple test scenarios (SaaS, DTC, B2B, etc.)
+- [x] **Catch edge cases** → Safety checks + similarity detection
+- [x] **Quality evaluation** → 5-dimension scoring + manual review guide
+
+---
+
+## 📝 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+This is an assignment project, but if you'd like to extend it:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📞 Support
+
+For questions or issues:
+- Open an issue on GitHub
+- Review the [Evaluation Guide](#evaluation-guide)
+- Check the [API Documentation](#api-documentation)
+
+---
+
+**Built with ❤️ for agencies and marketers who want to scale Reddit marketing without sacrificing authenticity.**

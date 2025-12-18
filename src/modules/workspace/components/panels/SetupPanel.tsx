@@ -11,7 +11,8 @@ import { Input } from '@/shared/components/ui/inputs/input';
 import { Label } from '@/shared/components/ui/inputs/label';
 import { Textarea } from '@/shared/components/ui/inputs/textarea';
 import { Badge } from '@/shared/components/ui/feedback/badge';
-import { SLIDEFORGE_PERSONAS, SLIDEFORGE_SUBREDDITS } from '@/core/data/personas/demo-data';
+import { SLIDEFORGE_SUBREDDITS } from '@/core/data/personas/demo-data';
+import { PERSONA_LIBRARY } from '@/core/data/personas/persona-library';
 import { CompanyContext, Persona } from '@/core/types';
 import { DynamicListInput } from '../setup/DynamicListInput';
 import { TagInput } from '../setup/TagInput';
@@ -318,7 +319,7 @@ export function SetupPanel({
                                 className="overflow-hidden"
                             >
                                 <div className="p-4 pt-0 space-y-2 pb-6">
-                                    {SLIDEFORGE_PERSONAS.map((persona) => {
+                                    {PERSONA_LIBRARY.map((persona) => {
                                         const isSelected = selectedPersonas.includes(persona.id);
                                         return (
                                             <button

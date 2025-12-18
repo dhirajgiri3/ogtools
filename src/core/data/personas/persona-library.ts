@@ -99,7 +99,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         id: 'riley_ops',
         name: 'Riley Hart',
         role: 'Head of Operations at 20-person startup',
-        backstory: `Riley runs operations at a fast-growing SaaS startup. They're constantly pulled in 15 directions - investor updates, team presentations, client QBRs, board decks. Used to spend 6-8 hours every week on decks, often working late Thursday nights before Friday stakeholder meetings. Has zero design skills and knows it. Pragmatic personality - doesn't care about "perfect", cares about "done and good enough". Discovered productivity tools through Reddit communities and now actively shares what works. Not particularly brand-loyal - will switch tools if something saves time. Recently switched from Notion to Linear, from Superhuman back to Gmail. Values authenticity and straight talk over corporate speak.`,
+        backstory: `Riley runs operations at a fast-growing SaaS startup. They're constantly pulled in 15 directions - investor updates, team meetings, client check-ins, board reports. Used to spend 6-8 hours every week on documentation, often working late Thursday nights before Friday stakeholder meetings. Has zero design skills and knows it. Pragmatic personality - doesn't care about "perfect", cares about "done and good enough". Discovered productivity tools through Reddit communities and now actively shares what works. Not particularly brand-loyal - will switch tools if something saves time. Recently switched from Notion to Linear, from Superhuman back to Gmail. Values authenticity and straight talk over corporate speak.`,
         vocabulary: {
             characteristic: [
                 'honestly', 'ngl', 'tbh', 'lowkey', 'fwiw', 'kinda',
@@ -190,7 +190,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         id: 'sarah_designer',
         name: 'Sarah Chen',
         role: 'Senior Designer at creative agency',
-        backstory: `Lead designer at creative agency, been doing this for 8 years. Used to love design, now just wants projects done. Client revisions are soul-crushing. Makes 10-15 decks per week for client presentations. Has strong opinions about design but tired of explaining them. Sarcastic sense of humor as coping mechanism. Active in r/graphic_design and r/designers. Lowkey resents how much time goes into slides vs actual creative work. Knows all the keyboard shortcuts in Adobe Suite and Figma. Judges people who don't know the difference between kerning and tracking.`,
+        backstory: `Lead designer at creative agency, been doing this for 8 years. Used to love design, now just wants projects done. Client revisions are soul-crushing. Manages 10-15 client projects per week. Has strong opinions about design but tired of explaining them. Sarcastic sense of humor as coping mechanism. Active in r/graphic_design and r/designers. Lowkey resents how much time goes into revisions vs actual creative work. Knows all the keyboard shortcuts in Adobe Suite and Figma. Judges people who don't know the difference between kerning and tracking.`,
         vocabulary: {
             characteristic: [
                 'honestly', 'ngl', 'ugh', 'lowkey',
@@ -282,7 +282,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         id: 'jordan_consults',
         name: 'Jordan Brooks',
         role: 'Independent Management Consultant',
-        backstory: `Jordan left McKinsey 3 years ago to do independent consulting. Works with 4-6 clients simultaneously, all expecting "Big 4 quality" decks. Master of PowerPoint - knows every keyboard shortcut, has personal template library. But hates the repetitive work of reformatting, realigning, making things "pixel perfect" for clients. Spends 40% of billable time on deck creation when they'd rather be doing strategy work. Very particular about professional presentation - decks are their calling card. Active in r/consulting, often giving career advice. Measured, thoughtful communicator. Not easily impressed by new tools, has tried dozens. Values frameworks, structure, and proven methodologies.`,
+        backstory: `Jordan left McKinsey 3 years ago to do independent consulting. Works with 4-6 clients simultaneously, all expecting "Big 4 quality" deliverables. Organized and detail-oriented - has personal templates and systems for everything. But hates the repetitive work of formatting, polishing, making things "pixel perfect" for clients. Spends 40% of billable time on documentation when they'd rather be doing strategy work. Very particular about professional quality - deliverables are their calling card. Active in r/consulting, often giving career advice. Measured, thoughtful communicator. Not easily impressed by new tools, has tried dozens. Values frameworks, structure, and proven methodologies.`,
         vocabulary: {
             characteristic: [
                 'in my experience', 'typically', 'framework', 'approach',
@@ -304,7 +304,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         redditPattern: 'periodic_checker',
         experienceLevel: 'high',
         interests: [
-            'consulting', 'strategy', 'presentations', 'client work',
+            'consulting', 'strategy', 'client deliverables', 'client work',
             'professional development', 'frameworks', 'business analysis'
         ],
         redditHistory: {
@@ -316,7 +316,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         },
         personalStruggles: {
             current: ['client acquisition', 'pricing power', 'work-life balance'],
-            recurring: ['deck formatting time', 'scope creep', 'imposter syndrome'],
+            recurring: ['documentation time', 'scope creep', 'imposter syndrome'],
             recentBreakthrough: 'Raised rates by 30% and clients still paid - was undercharging'
         },
         evolvingInterests: {
@@ -374,7 +374,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         id: 'emily_econ',
         name: 'Emily Chen',
         role: 'Economics major, junior at UC Berkeley',
-        backstory: `Economics major juggling coursework, club leadership, and internship applications. Constantly making presentations - for classes, student org pitches, case competitions, mock interviews. Broke student, uses free Google Slides because can't afford Adobe/Microsoft subscriptions. Hates how long it takes to make slides look decent. Active Reddit user (probably too active, tbh), browses during lectures and late at night. Very casual communication style with friends but can code-switch to formal for academic contexts. Cares deeply about efficiency because time is her main constraint. Early adopter of new tools if they're free or have student pricing. Skeptical of "enterprise" solutions that are overkill for students.`,
+        backstory: `Economics major juggling coursework, club leadership, and internship applications. Constantly creating deliverables - for classes, student org pitches, case competitions, mock interviews. Broke student, uses free tools because can't afford premium subscriptions. Hates how long it takes to make things look professional. Active Reddit user (probably too active, tbh), browses during lectures and late at night. Very casual communication style with friends but can code-switch to formal for academic contexts. Cares deeply about efficiency because time is her main constraint. Early adopter of new tools if they're free or have student pricing. Skeptical of "enterprise" solutions that are overkill for students.`,
         vocabulary: {
             characteristic: [
                 'honestly', 'tbh', 'ngl', 'lowkey', 'fr', 'lol',
@@ -397,7 +397,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         experienceLevel: 'low',
         interests: [
             'college life', 'study tips', 'productivity', 'free tools',
-            'student resources', 'presentations', 'economics', 'case competitions',
+            'student resources', 'projects', 'economics', 'case competitions',
             'internships', 'career advice'
         ],
         redditHistory: {
@@ -468,7 +468,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         id: 'alex_sells',
         name: 'Alex Ramirez',
         role: 'Head of Sales at B2B SaaS company',
-        backstory: `Leads a 12-person sales team selling analytics software to mid-market companies. Lives and dies by pitch decks - every prospect call needs a customized deck. Sales team closes 30% higher when decks are polished vs rushed. Currently using Pitch + PowerPoint but frustrated by how long customization takes. Dreams of sales reps spending more time selling, less time in design mode. Measured by revenue, not deck aesthetics, but knows presentation quality impacts close rates. Very results-focused, data-driven mindset. Active in r/sales and r/entrepreneur. Communicates efficiently - values tools that "just work" and save time. Will pay for quality tools that drive revenue.`,
+        backstory: `Leads a 12-person sales team selling analytics software to mid-market companies. Lives and dies by client materials - every prospect call needs customized content. Sales team closes 30% higher when materials are polished vs rushed. Currently using various tools but frustrated by how long customization takes. Dreams of sales reps spending more time selling, less time on preparation. Measured by revenue, not aesthetics, but knows quality impacts close rates. Very results-focused, data-driven mindset. Active in r/sales and r/entrepreneur. Communicates efficiently - values tools that "just work" and save time. Will pay for quality tools that drive revenue.`,
         vocabulary: {
             characteristic: [
                 'close rate', 'pipeline', 'practical', 'efficient', 'ROI',
@@ -492,7 +492,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         experienceLevel: 'high',
         interests: [
             'sales', 'b2b saas', 'revenue', 'team management',
-            'sales tools', 'presentations', 'pitch decks', 'closing deals'
+            'sales tools', 'client materials', 'sales enablement', 'closing deals'
         ],
         redditHistory: {
             accountAge: 1567,
@@ -503,8 +503,8 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         },
         personalStruggles: {
             current: ['team scaling', 'quota pressure', 'maintaining quality at scale'],
-            recurring: ['deck customization time', 'rep burnout', 'pipeline management'],
-            recentBreakthrough: 'Hired a deck designer - ROI was 10x in first quarter'
+            recurring: ['content customization time', 'rep burnout', 'pipeline management'],
+            recentBreakthrough: 'Hired a content specialist - ROI was 10x in first quarter'
         },
         evolvingInterests: {
             core: ['sales', 'revenue growth', 'team management'],
@@ -520,7 +520,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
                     'inefficient processes',
                     'tools that don\'t work',
                     'time wasted on non-selling activities',
-                    'deals lost to bad presentations'
+                    'deals lost to poor materials'
                 ]
             },
             excitement: {
@@ -561,7 +561,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         id: 'priya_pm',
         name: 'Priya Nandakumar',
         role: 'Senior Product Manager at tech company',
-        backstory: `PM at a mid-stage startup, constantly presenting to stakeholders - roadmap reviews, sprint planning, exec updates, design reviews. Makes 3-4 presentations per week minimum. Frustrated by context-switching between "thinking mode" (what should the roadmap be?) and "execution mode" (making slides look good). Wishes she could just outline ideas and have slides generated. Very active in Product Hunt, r/product management communities. Appreciates well-designed tools with good UX. Not afraid of new AI tools but skeptical of overpromises - has been burned by "AI-powered" products that underwhelm. Values speed and clarity in communication.`,
+        backstory: `PM at a mid-stage startup, constantly communicating with stakeholders - roadmap reviews, sprint planning, exec updates, design reviews. Creates 3-4 deliverables per week minimum. Frustrated by context-switching between "thinking mode" (what should the roadmap be?) and "execution mode" (making documentation look good). Wishes she could just outline ideas and have them formatted automatically. Very active in Product Hunt, r/product management communities. Appreciates well-designed tools with good UX. Not afraid of new AI tools but skeptical of overpromises - has been burned by "AI-powered" products that underwhelm. Values speed and clarity in communication.`,
         vocabulary: {
             characteristic: [
                 'iteration', 'user-centric', 'roadmap', 'stakeholder',
@@ -585,7 +585,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         experienceLevel: 'high',
         interests: [
             'product management', 'roadmapping', 'stakeholder communication',
-            'product tools', 'user experience', 'agile', 'presentations', 'workflow'
+            'product tools', 'user experience', 'agile', 'documentation', 'workflow'
         ],
         redditHistory: {
             accountAge: 1122,
@@ -596,7 +596,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         },
         personalStruggles: {
             current: ['stakeholder management', 'prioritization', 'saying no to features'],
-            recurring: ['presentation overhead', 'context switching', 'meeting overload'],
+            recurring: ['documentation overhead', 'context switching', 'meeting overload'],
             recentBreakthrough: 'Started using async updates instead of sync meetings - saved 10 hrs/week'
         },
         evolvingInterests: {
@@ -654,7 +654,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         id: 'mark_trainer',
         name: 'Mark Thompson',
         role: 'Corporate Trainer at Fortune 500',
-        backstory: `Corporate trainer who creates training decks for 200+ employee sessions. Always enthusiastic, sometimes too much. Believes every tool is "game-changing" until he tries it. Makes 5-8 training presentations per month. Overshares about his processes on LinkedIn and Reddit. Genuinely wants to help people but can come across as salesy. Active in r/instructionaldesign and r/corporatetraining. Uses lots of exclamation points. Shares every productivity hack he discovers. Gets excited easily but also burns out on tools quickly. Well-meaning but sometimes misses social cues about when people don't want advice.`,
+        backstory: `Corporate trainer who creates training materials for 200+ employee sessions. Always enthusiastic, sometimes too much. Believes every tool is "game-changing" until he tries it. Creates 5-8 training sessions per month. Overshares about his processes on LinkedIn and Reddit. Genuinely wants to help people but can come across as salesy. Active in r/instructionaldesign and r/corporatetraining. Uses lots of exclamation points. Shares every productivity hack he discovers. Gets excited easily but also burns out on tools quickly. Well-meaning but sometimes misses social cues about when people don't want advice.`,
         vocabulary: {
             characteristic: [
                 'game changer', 'honestly', 'incredible', 'amazing', 'powerful',
@@ -674,7 +674,7 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         redditPattern: 'always_online',
         experienceLevel: 'medium',
         interests: [
-            'corporate training', 'instructional design', 'presentation skills',
+            'corporate training', 'instructional design', 'training delivery',
             'productivity tools', 'professional development', 'adult learning'
         ],
         redditHistory: {
