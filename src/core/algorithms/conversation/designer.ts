@@ -13,6 +13,7 @@ import {
     ReplyTemplate
 } from '@/core/types';
 import { getSubredditProfile } from '@/core/data/subreddits/profiles';
+import { injectAuthenticity } from '../authenticity/engine';
 import { buildPostPrompt, buildCommentPrompt, buildReplyPrompt } from './prompt-builder';
 
 /**
@@ -335,7 +336,8 @@ export async function generatePost(
     keywords: string[]
 ): Promise<Post> {
     const prompt = buildPostPrompt(template, persona, company, subreddit, keywords);
-    const content = await generateWithOpenAI(prompt);
+    const rawContent = await generateWithOpenAI(prompt);
+    const content = await injectAuthenticity(rawContent, persona, subreddit.name, 'post');
 
     return {
         id: `post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -369,7 +371,8 @@ export async function generateComment(
         posterName,
         keywords
     );
-    const content = await generateWithOpenAI(prompt);
+    const rawContent = await generateWithOpenAI(prompt);
+    const content = await injectAuthenticity(rawContent, persona, subreddit.name, 'comment');
 
     return {
         id: `comment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -402,7 +405,8 @@ export async function generateReply(
         parentCommentContent,
         isOP
     );
-    const content = await generateWithOpenAI(prompt);
+    const rawContent = await generateWithOpenAI(prompt);
+    const content = await injectAuthenticity(rawContent, persona, subreddit.name, 'reply');
 
     return {
         id: `reply_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,

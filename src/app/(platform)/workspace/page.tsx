@@ -5,22 +5,33 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ChevronLeft, ChevronRight, Download, PanelLeftClose, PanelLeft,
-    Sparkles, LayoutGrid, Calendar as CalendarIcon, Loader2, BarChart3
+    LayoutGrid, Calendar as CalendarIcon, Loader2, BarChart3,
+    MoreVertical, RotateCcw, Settings, Trash2, Plus
 } from 'lucide-react';
-import { Button } from '@/shared/components/ui/button';
-import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/inputs/button';
+import { Badge } from '@/shared/components/ui/feedback/badge';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/shared/components/ui/overlays/dropdown-menu';
 import {
     SetupPanel,
     CalendarView,
     ThreadPanel,
-    GenerationStatus
-} from '@/features/workspace/components';
-import { WeekAnalytics } from '@/features/workspace/components/WeekAnalytics';
-import { ExportDialog } from '@/features/workspace/components/ExportDialog';
-import { DemoModeSwitcher } from '@/features/workspace/components/DemoModeSwitcher';
+    GenerationStatus,
+    WeekAnalytics,
+    ExportDialog,
+    DemoModeSwitcher
+} from '@/modules/workspace/components';
 import { getSlideForgeDemo, SLIDEFORGE_PERSONAS, SLIDEFORGE_SUBREDDITS, SLIDEFORGE_COMPANY } from '@/core/data/personas/slideforge';
 import { Persona, CompanyContext, WeekCalendar, ScheduledConversation } from '@/core/types';
 import Link from 'next/link';
+import { calendarStorage } from '@/modules/workspace/lib/calendar-storage';
+import { toast } from '@/shared/lib/utils/toast';
+import { ConfirmDialog } from '@/shared/components/ui/feedback/confirm-dialog';
 
 /**
  * Unified Workspace Page
@@ -82,6 +93,12 @@ function WorkspaceContent() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [generationProgress, setGenerationProgress] = useState(0);
     const [generationStatus, setGenerationStatus] = useState('');
+
+    // CRUD State
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [lastSaved, setLastSaved] = useState<Date | null>(null);
+    const [pendingChanges, setPendingChanges] = useState<Set<string>>(new Set());
+    const [showDeleteWeekConfirm, setShowDeleteWeekConfirm] = useState(false);
 
     // Load demo data if demo mode
     useEffect(() => {
@@ -211,10 +228,262 @@ function WorkspaceContent() {
         }
     }, [isValidConfig, company, selectedPersonas, selectedSubreddits, keywords, postsPerWeek, qualityThreshold, allWeeks]);
 
+    // CRUD Handlers
+
+    /**
+     * Update a conversation with optimistic UI
+     */
+    const handleUpdateConversation = useCallback(async (
+        conversationId: string,
+        updates: Partial<ScheduledConversation>
+    ) => {
+        setIsUpdating(true);
+        const originalConversation = calendarStorage.getConversation(currentWeekIndex, conversationId);
+
+        try {
+            // Optimistic update - update UI immediately
+            const updatedWeeks = [...allWeeks];
+            const week = updatedWeeks[currentWeekIndex];
+            const convIndex = week.conversations.findIndex(c => c.conversation.id === conversationId);
+
+            if (convIndex !== -1) {
+                week.conversations[convIndex] = {
+                    ...week.conversations[convIndex],
+                    ...updates,
+                };
+                setAllWeeks(updatedWeeks);
+            }
+
+            // Persist to storage
+            await calendarStorage.updateConversation(currentWeekIndex, conversationId, updates);
+            setLastSaved(new Date());
+
+            toast.success('Conversation updated');
+        } catch (error) {
+            // Rollback on error
+            if (originalConversation) {
+                const rolledBackWeeks = [...allWeeks];
+                const week = rolledBackWeeks[currentWeekIndex];
+                const convIndex = week.conversations.findIndex(c => c.conversation.id === conversationId);
+                if (convIndex !== -1) {
+                    week.conversations[convIndex] = originalConversation;
+                    setAllWeeks(rolledBackWeeks);
+                }
+            }
+            toast.error('Failed to update conversation');
+            console.error('Update error:', error);
+        } finally {
+            setIsUpdating(false);
+        }
+    }, [currentWeekIndex, allWeeks]);
+
+    /**
+     * Delete a conversation
+     */
+    const handleDeleteConversation = useCallback(async (conversationId: string) => {
+        try {
+            await calendarStorage.deleteConversation(currentWeekIndex, conversationId);
+
+            // Update UI
+            const updatedWeeks = calendarStorage.getAllWeeks();
+            setAllWeeks(updatedWeeks);
+
+            // Close ThreadPanel if the deleted conversation was selected
+            if (selectedConversation?.conversation.id === conversationId) {
+                setSelectedConversation(null);
+            }
+
+            toast.success('Conversation deleted');
+        } catch (error) {
+            toast.error('Failed to delete conversation');
+            console.error('Delete error:', error);
+        }
+    }, [currentWeekIndex, selectedConversation]);
+
+    /**
+     * Delete an entire week
+     */
+    const handleDeleteWeek = useCallback(async (weekIndex: number) => {
+        try {
+            await calendarStorage.deleteWeek(weekIndex);
+
+            // Update UI
+            const updatedWeeks = calendarStorage.getAllWeeks();
+            setAllWeeks(updatedWeeks);
+
+            // Adjust current week index if needed
+            if (currentWeekIndex >= updatedWeeks.length && updatedWeeks.length > 0) {
+                setCurrentWeekIndex(updatedWeeks.length - 1);
+            } else if (updatedWeeks.length === 0) {
+                setCurrentWeekIndex(0);
+            }
+
+            // Close ThreadPanel
+            setSelectedConversation(null);
+
+            toast.success('Week deleted');
+        } catch (error) {
+            toast.error('Failed to delete week');
+            console.error('Delete week error:', error);
+        }
+    }, [currentWeekIndex]);
+
+    /**
+     * Regenerate a single conversation
+     */
+    const handleRegenerateConversation = useCallback(async (conversationId: string) => {
+        setIsUpdating(true);
+
+        try {
+            const response = await fetch('/api/regenerate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    mode: 'conversation',
+                    conversationId,
+                    weekIndex: currentWeekIndex,
+                    context: {
+                        currentWeek: calendar,
+                        previousWeeks: allWeeks.slice(0, currentWeekIndex),
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Regeneration failed');
+            }
+
+            const { scheduled } = await response.json();
+
+            // Update in storage
+            await calendarStorage.updateConversation(currentWeekIndex, conversationId, scheduled);
+
+            // Update UI
+            const updatedWeeks = calendarStorage.getAllWeeks();
+            setAllWeeks(updatedWeeks);
+
+            // Update selected conversation if it's the one being regenerated
+            if (selectedConversation?.conversation.id === conversationId) {
+                setSelectedConversation(scheduled);
+            }
+
+            toast.success('Conversation regenerated');
+        } catch (error) {
+            toast.error('Failed to regenerate conversation');
+            console.error('Regenerate error:', error);
+        } finally {
+            setIsUpdating(false);
+        }
+    }, [currentWeekIndex, calendar, allWeeks, selectedConversation]);
+
+    /**
+     * Regenerate entire week with same parameters
+     */
+    const handleRegenerateWeek = useCallback(async () => {
+        setIsGenerating(true);
+        setGenerationProgress(10);
+        setGenerationStatus('Regenerating week...');
+
+        try {
+            const response = await fetch('/api/regenerate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    mode: 'week',
+                    weekIndex: currentWeekIndex,
+                    context: {
+                        currentWeek: calendar,
+                        previousWeeks: allWeeks.slice(0, currentWeekIndex),
+                    }
+                })
+            });
+
+            setGenerationProgress(80);
+
+            if (!response.ok) {
+                throw new Error('Week regeneration failed');
+            }
+
+            const { calendar: newCalendar } = await response.json();
+
+            setGenerationProgress(100);
+            setGenerationStatus('Complete!');
+
+            // Update in storage
+            await calendarStorage.updateWeek(currentWeekIndex, newCalendar);
+
+            // Update UI
+            const updatedWeeks = calendarStorage.getAllWeeks();
+            setAllWeeks(updatedWeeks);
+
+            // Close ThreadPanel
+            setSelectedConversation(null);
+
+            setTimeout(() => {
+                setIsGenerating(false);
+                setGenerationProgress(0);
+                setGenerationStatus('');
+                toast.success('Week regenerated');
+            }, 1000);
+        } catch (error) {
+            toast.error('Failed to regenerate week');
+            console.error('Regenerate week error:', error);
+            setIsGenerating(false);
+            setGenerationProgress(0);
+            setGenerationStatus('');
+        }
+    }, [currentWeekIndex, calendar, allWeeks]);
+
+    /**
+     * Update conversation scheduled time
+     */
+    const handleUpdateTime = useCallback(async (
+        conversationId: string,
+        newTime: Date
+    ) => {
+        // Validate time gap
+        const validation = calendarStorage.validateTimeGap(newTime, currentWeekIndex, conversationId);
+
+        if (!validation.valid) {
+            toast.warning(validation.message || 'Invalid time');
+            return;
+        }
+
+        try {
+            await handleUpdateConversation(conversationId, { scheduledTime: newTime });
+            toast.success('Time updated');
+        } catch (error) {
+            toast.error('Failed to update time');
+        }
+    }, [currentWeekIndex, handleUpdateConversation]);
+
+    /**
+     * Bulk delete conversations
+     */
+    const handleBulkDelete = useCallback(async (conversationIds: string[]) => {
+        try {
+            await calendarStorage.deleteMultipleConversations(currentWeekIndex, conversationIds);
+
+            // Update UI
+            const updatedWeeks = calendarStorage.getAllWeeks();
+            setAllWeeks(updatedWeeks);
+
+            // Close ThreadPanel if needed
+            if (selectedConversation && conversationIds.includes(selectedConversation.conversation.id)) {
+                setSelectedConversation(null);
+            }
+
+            toast.success(`${conversationIds.length} conversations deleted`);
+        } catch (error) {
+            toast.error('Failed to delete conversations');
+            console.error('Bulk delete error:', error);
+        }
+    }, [currentWeekIndex, selectedConversation]);
+
     return (
         <div className="h-screen flex flex-col bg-zinc-50/30 overflow-hidden font-sans">
-            {/* Header - Premium Minimal Design */}
-            <header className="flex-shrink-0 h-14 bg-white/95 backdrop-blur-xl border-b border-zinc-100 flex items-center justify-between px-4 z-40 relative shadow-sm shadow-zinc-100/50">
+            {/* Header - Minimal Design */}
+            <header className="flex-shrink-0 h-14 bg-white border-b border-zinc-200 flex items-center justify-between px-4 z-40 relative">
                 <div className="flex items-center gap-3">
                     {/* Setup Toggle */}
                     <Button
@@ -233,13 +502,10 @@ function WorkspaceContent() {
 
                     {/* Branding */}
                     <Link href="/" className="flex items-center gap-2.5 group">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-zinc-900 to-zinc-700 flex items-center justify-center shadow-md shadow-zinc-900/10">
-                            <span className="text-white font-bold text-xs tracking-tighter">RM</span>
+                        <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center">
+                            <span className="text-white font-bold text-xs">RM</span>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="font-semibold text-sm text-zinc-900 leading-tight tracking-tight">Reddit Mastermind</span>
-                            <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider">Workspace</span>
-                        </div>
+                        <span className="font-semibold text-sm text-zinc-900">Reddit Mastermind</span>
                     </Link>
 
                     {isDemo && (
@@ -252,7 +518,7 @@ function WorkspaceContent() {
                 {/* Center Controls - Week Nav */}
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     {allWeeks.length > 0 ? (
-                        <div className="flex items-center bg-white rounded-xl p-1 border border-zinc-200 shadow-sm">
+                        <div className="flex items-center bg-white rounded-xl p-1 border border-zinc-200 shadow-sm gap-1">
                             <Button
                                 variant="ghost"
                                 size="icon-sm"
@@ -277,10 +543,42 @@ function WorkspaceContent() {
                             >
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
+
+                            {/* Week Actions Dropdown */}
+                            <div className="w-px h-5 bg-zinc-200 mx-1" />
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        className="h-7 w-7 rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
+                                    >
+                                        <MoreVertical className="w-4 h-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56">
+                                    <DropdownMenuItem
+                                        onClick={handleRegenerateWeek}
+                                        disabled={isGenerating || isUpdating}
+                                    >
+                                        <RotateCcw className="w-4 h-4 mr-2" />
+                                        Regenerate Week
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={() => setShowDeleteWeekConfirm(true)}
+                                        className="text-red-600 focus:text-red-600"
+                                        disabled={isGenerating || isUpdating}
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        Delete Week
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     ) : (
                         <div className="flex items-center gap-2 text-sm">
-                            <Sparkles className="w-4 h-4 text-zinc-400" />
+                            <CalendarIcon className="w-4 h-4 text-zinc-400" />
                             <span className="font-medium text-zinc-500">New Campaign</span>
                         </div>
                     )}
@@ -363,6 +661,8 @@ function WorkspaceContent() {
                             selectedConversation={selectedConversation}
                             hasData={allWeeks.length > 0}
                             onOpenSetup={() => setSetupPanelOpen(true)}
+                            onRegenerate={handleRegenerateWeek}
+                            isRegenerating={isGenerating}
                         />
                     </div>
 
@@ -397,6 +697,11 @@ function WorkspaceContent() {
                             <ThreadPanel
                                 scheduled={selectedConversation}
                                 onClose={() => setSelectedConversation(null)}
+                                onUpdate={handleUpdateConversation}
+                                onDelete={handleDeleteConversation}
+                                onRegenerate={handleRegenerateConversation}
+                                onUpdateTime={handleUpdateTime}
+                                isUpdating={isUpdating}
                             />
                         </motion.aside>
                     )}
@@ -418,6 +723,18 @@ function WorkspaceContent() {
                 open={exportDialogOpen}
                 onOpenChange={setExportDialogOpen}
                 calendars={allWeeks}
+            />
+
+            {/* Delete Week Confirmation */}
+            <ConfirmDialog
+                open={showDeleteWeekConfirm}
+                onOpenChange={setShowDeleteWeekConfirm}
+                title="Delete Entire Week?"
+                description={`This will permanently delete Week ${calendar?.weekNumber || currentWeekIndex + 1} and all its ${calendar?.conversations.length || 0} conversations. This action cannot be undone.`}
+                confirmText="Delete Week"
+                cancelText="Cancel"
+                variant="destructive"
+                onConfirm={() => handleDeleteWeek(currentWeekIndex)}
             />
         </div>
     );

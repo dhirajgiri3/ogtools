@@ -1,8 +1,8 @@
 import '@/shared/styles/animations.css';
-import { Hero } from '@/features/landing/components/hero';
-import { BeforeAfterSlider } from '@/features/landing/components/features';
-import { FeatureSteps } from '@/shared/components/ui/feature-steps';
-import { Button } from '@/shared/components/ui/button';
+import { Hero } from '@/modules/landing/components/hero';
+import { BeforeAfterSlider } from '@/modules/landing/components/sections';
+import { FeatureSteps } from '@/modules/landing/components/sections';
+import { Button } from '@/shared/components/ui/inputs/button';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
