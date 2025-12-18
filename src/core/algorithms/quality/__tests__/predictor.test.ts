@@ -1,5 +1,5 @@
 import { predictQuality } from '../predictor';
-import { SLIDEFORGE_COMPANY, SLIDEFORGE_PERSONAS } from '@/core/data/personas/slideforge';
+import { SLIDEFORGE_COMPANY, SLIDEFORGE_PERSONAS } from '@/core/data/personas/demo-data';
 import { ConversationThread } from '@/core/types';
 
 describe('Quality Predictor', () => {

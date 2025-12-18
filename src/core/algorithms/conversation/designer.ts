@@ -253,7 +253,7 @@ export function selectPersonasForArc(
     poster: Persona;
     commenters: Persona[];
 } {
-    // Score all personas
+    // Score all personas for subreddit match
     const scoredPersonas = personas.map(p => ({
         persona: p,
         score: scorePersonaForSubreddit(p, subreddit)
@@ -270,11 +270,13 @@ export function selectPersonasForArc(
         const unusedPersona = scoredPersonas.find(sp => !usedPosters.has(sp.persona.id));
 
         if (unusedPersona) {
-            // Use an unused persona
+            // Use an unused persona (prioritize by subreddit match score)
             poster = unusedPersona.persona;
         } else {
-            // All personas used - cycle through them again
-            poster = scoredPersonas[0].persona;
+            // All personas used - use round-robin based on set size
+            // This ensures even distribution instead of always picking highest scorer
+            const rotationIndex = usedPosters.size % personas.length;
+            poster = personas[rotationIndex];
         }
     }
 
@@ -469,6 +471,101 @@ export async function generateConversation(
     const topLevelComments = (await Promise.all(commentPromises)).filter((c): c is Comment => c !== null);
 
     // PERFORMANCE OPTIMIZATION: Parallelize reply generation  
+    const replyPromises = arc.replyTemplates.map((replyTemplate, i) => {
+        if (i >= topLevelComments.length) return null;
+
+        const isOP = replyTemplate.replyType === 'op_followup';
+        const replyPersona = isOP ? poster : commenters[Math.min(i, commenters.length - 1)];
+        const parentComment = topLevelComments[i];
+
+        return generateReply(
+            replyTemplate,
+            replyPersona,
+            subredditProfile,
+            post.content,
+            parentComment.content,
+            parentComment.id,
+            isOP
+        );
+    });
+
+    const replies = (await Promise.all(replyPromises)).filter((r): r is Reply => r !== null);
+
+    return {
+        id: `thread_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        post,
+        topLevelComments,
+        replies,
+        arcType,
+        subreddit
+    };
+}
+
+/**
+ * Generate conversation with specific poster persona (for rotation control)
+ */
+export async function generateConversationWithPersona(
+    arcType: 'discovery' | 'comparison' | 'problemSolver',
+    posterPersona: Persona,
+    allPersonas: Persona[],
+    company: CompanyContext,
+    subreddit: string,
+    keywords: string[]
+): Promise<Omit<ConversationThread, 'qualityScore'>> {
+    // Get arc template
+    const arc = ARC_TEMPLATES.find(a => a.type === arcType);
+    if (!arc) throw new Error(`Unknown arc type: ${arcType}`);
+
+    // Get subreddit profile
+    const subredditProfile = getSubredditProfile(subreddit);
+
+    // Use the assigned poster
+    const poster = posterPersona;
+
+    // Select commenters (excluding the poster)
+    const availableCommenters = allPersonas.filter(p => p.id !== poster.id);
+    const scoredCommenters = availableCommenters.map(p => ({
+        persona: p,
+        score: scorePersonaForSubreddit(p, subredditProfile)
+    })).sort((a, b) => b.score - a.score);
+
+    const commenters: Persona[] = scoredCommenters
+        .slice(0, arc.commentTemplates.length)
+        .map(sc => sc.persona);
+
+    // If no other personas available, allow poster to comment
+    if (commenters.length === 0 && allPersonas.length === 1) {
+        commenters.push(poster);
+    }
+
+    // Generate post
+    const post = await generatePost(arc.postTemplate, poster, company, subredditProfile, keywords);
+
+    // Generate comments in parallel
+    const commentPromises = arc.commentTemplates.map((template, i) => {
+        if (commenters.length === 0) return null;
+
+        const commenter = commenters[i % commenters.length];
+
+        // Force first comment to NEVER mention product
+        const safeTemplate = i === 0
+            ? { ...template, productMention: false, productFraming: undefined }
+            : template;
+
+        return generateComment(
+            safeTemplate,
+            commenter,
+            company,
+            subredditProfile,
+            post.content,
+            poster.name,
+            keywords
+        );
+    });
+
+    const topLevelComments = (await Promise.all(commentPromises)).filter((c): c is Comment => c !== null);
+
+    // Generate replies in parallel
     const replyPromises = arc.replyTemplates.map((replyTemplate, i) => {
         if (i >= topLevelComments.length) return null;
 

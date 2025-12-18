@@ -1,7 +1,7 @@
 import { injectAuthenticity } from '@/core/algorithms/authenticity/engine';
 import { predictQuality } from '@/core/algorithms/quality/predictor';
 import { ConversationThread } from '@/core/types';
-import { SLIDEFORGE_PERSONAS } from '@/core/data/personas/slideforge';
+import { SLIDEFORGE_PERSONAS } from '@/core/data/personas/demo-data';
 
 // Mock OpenAI to return deterministic, high-quality responses key for testing
 jest.mock('@/shared/lib/api/openai-client', () => ({

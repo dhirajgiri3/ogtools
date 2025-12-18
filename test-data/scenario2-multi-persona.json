@@ -1,0 +1,137 @@
+{
+    "company": {
+        "name": "SalesBoost",
+        "product": "AI-powered sales enablement platform",
+        "valuePropositions": [
+            "Automates repetitive sales tasks",
+            "Provides real-time deal intelligence",
+            "Increases close rates by 30%"
+        ],
+        "icp": [
+            "B2B sales teams at mid-market companies",
+            "Sales managers looking to scale their teams",
+            "Revenue operations leaders"
+        ],
+        "keywords": [
+            "sales automation",
+            "close deals faster",
+            "sales productivity",
+            "pipeline management"
+        ]
+    },
+    "personas": [
+        {
+            "id": "riley_ops",
+            "name": "Riley Hart",
+            "role": "Head of Operations",
+            "backstory": "Pragmatic ops leader at startup",
+            "vocabulary": {
+                "characteristic": [
+                    "honestly",
+                    "literally",
+                    "ngl",
+                    "tbh"
+                ],
+                "avoid": [
+                    "fundamentally",
+                    "game-changer"
+                ],
+                "formality": 0.4
+            },
+            "communicationStyle": {
+                "default": "casual",
+                "acceptable": [
+                    "casual",
+                    "professional"
+                ]
+            },
+            "redditPattern": "periodic_checker",
+            "experienceLevel": "medium",
+            "interests": [
+                "productivity",
+                "operations",
+                "saas"
+            ]
+        },
+        {
+            "id": "alex_sells",
+            "name": "Alex Ramirez",
+            "role": "Head of Sales",
+            "backstory": "Results-driven sales leader",
+            "vocabulary": {
+                "characteristic": [
+                    "ROI",
+                    "bottom line",
+                    "practical",
+                    "efficient"
+                ],
+                "avoid": [
+                    "artistic",
+                    "lol",
+                    "lmao"
+                ],
+                "formality": 0.5
+            },
+            "communicationStyle": {
+                "default": "professional",
+                "acceptable": [
+                    "professional",
+                    "casual"
+                ]
+            },
+            "redditPattern": "always_online",
+            "experienceLevel": "high",
+            "interests": [
+                "sales",
+                "b2b saas",
+                "revenue"
+            ]
+        },
+        {
+            "id": "priya_pm",
+            "name": "Priya Nandakumar",
+            "role": "Senior Product Manager",
+            "backstory": "Thoughtful PM at tech company",
+            "vocabulary": {
+                "characteristic": [
+                    "iteration",
+                    "user-centric",
+                    "roadmap",
+                    "imo"
+                ],
+                "avoid": [
+                    "revolutionary",
+                    "lol",
+                    "lmao"
+                ],
+                "formality": 0.55
+            },
+            "communicationStyle": {
+                "default": "professional",
+                "acceptable": [
+                    "professional",
+                    "casual",
+                    "technical"
+                ]
+            },
+            "redditPattern": "periodic_checker",
+            "experienceLevel": "high",
+            "interests": [
+                "product management",
+                "workflow",
+                "presentations"
+            ]
+        }
+    ],
+    "subreddits": [
+        "r/productivity",
+        "r/SaaS"
+    ],
+    "keywords": [
+        "productivity tools",
+        "sales automation",
+        "workflow efficiency"
+    ],
+    "postsPerWeek": 6,
+    "qualityThreshold": 75
+}

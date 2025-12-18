@@ -1,6 +1,6 @@
 
 // Mock the Next.js Request object and route handler since we are running in Jest environment
-import { SLIDEFORGE_COMPANY, SLIDEFORGE_PERSONAS, SLIDEFORGE_SUBREDDITS } from '@/core/data/personas/slideforge';
+import { SLIDEFORGE_COMPANY, SLIDEFORGE_PERSONAS, SLIDEFORGE_SUBREDDITS } from '@/core/data/personas/demo-data';
 // import { POST } from '@/app/api/generate/route'; 
 // Note: Importing the route directly might be tricky depending on how it's exported and if it uses Next.js specific globals.
 // For now, we'll try to follow the guide but if the route file doesn't exist or has issues, we might need to adjust.

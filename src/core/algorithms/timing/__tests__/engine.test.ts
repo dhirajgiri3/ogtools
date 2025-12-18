@@ -4,7 +4,7 @@ import {
   generateReplyTimings,
   generateSchedule
 } from '../engine';
-import { SLIDEFORGE_PERSONAS } from '@/core/data/personas/slideforge';
+import { SLIDEFORGE_PERSONAS } from '@/core/data/personas/demo-data';
 import { Persona, ConversationThread } from '@/core/types';
 import { getHour, isWeekend, getStartOfWeek } from '@/core/algorithms/timing/utils';
 import { getPersonaTiming } from '@/core/data/personas/timing';

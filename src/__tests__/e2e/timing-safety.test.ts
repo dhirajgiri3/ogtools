@@ -1,6 +1,6 @@
 import { generateSchedule } from '@/core/algorithms/timing/engine';
 import { validateSafety } from '@/core/algorithms/safety/validator';
-import { SLIDEFORGE_PERSONAS } from '@/core/data/personas/slideforge';
+import { SLIDEFORGE_PERSONAS } from '@/core/data/personas/demo-data';
 
 describe('Timing + Safety Integration', () => {
 

@@ -26,7 +26,7 @@ import {
     ExportDialog,
     DemoModeSwitcher
 } from '@/modules/workspace/components';
-import { getSlideForgeDemo, SLIDEFORGE_PERSONAS, SLIDEFORGE_SUBREDDITS, SLIDEFORGE_COMPANY } from '@/core/data/personas/slideforge';
+import { getSlideForgeDemo, SLIDEFORGE_PERSONAS, SLIDEFORGE_SUBREDDITS, SLIDEFORGE_COMPANY } from '@/core/data/personas/demo-data';
 import { Persona, CompanyContext, WeekCalendar, ScheduledConversation } from '@/core/types';
 import Link from 'next/link';
 import { calendarStorage } from '@/modules/workspace/lib/calendar-storage';
@@ -79,8 +79,8 @@ function WorkspaceContent() {
     const [company, setCompany] = useState<CompanyContext>({
         name: '',
         product: '',
-        valuePropositions: [''],
-        icp: [''],
+        valuePropositions: [],
+        icp: [],
         keywords: []
     });
     const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
@@ -145,9 +145,13 @@ function WorkspaceContent() {
 
     const calendar = allWeeks[currentWeekIndex] || null;
 
-    // Validation - check if we can generate
+    // Enhanced validation - check if we can generate
+    const keywordsArray = keywords.split(',').map(k => k.trim()).filter(Boolean);
     const isValidConfig = company.name.trim() !== '' &&
         company.product.trim() !== '' &&
+        company.valuePropositions.length >= 2 &&
+        company.icp.length >= 2 &&
+        keywordsArray.length >= 3 &&
         selectedPersonas.length > 0 &&
         selectedSubreddits.length > 0;
 

@@ -11,8 +11,11 @@ import { Input } from '@/shared/components/ui/inputs/input';
 import { Label } from '@/shared/components/ui/inputs/label';
 import { Textarea } from '@/shared/components/ui/inputs/textarea';
 import { Badge } from '@/shared/components/ui/feedback/badge';
-import { SLIDEFORGE_PERSONAS, SLIDEFORGE_SUBREDDITS } from '@/core/data/personas/slideforge';
+import { SLIDEFORGE_PERSONAS, SLIDEFORGE_SUBREDDITS } from '@/core/data/personas/demo-data';
 import { CompanyContext, Persona } from '@/core/types';
+import { DynamicListInput } from '../setup/DynamicListInput';
+import { TagInput } from '../setup/TagInput';
+import { FrequencyCalculator } from '../setup/FrequencyCalculator';
 
 interface SetupPanelProps {
     company: CompanyContext;
@@ -32,6 +35,31 @@ interface SetupPanelProps {
     onGenerate: () => void;
     weekNumber: number;
 }
+
+// Value proposition suggestions
+const VALUE_PROP_SUGGESTIONS = [
+    'Saves 10+ hours per week',
+    'Reduces costs by 40%',
+    'Increases productivity by 50%',
+    'Automates repetitive tasks',
+    'Improves team collaboration'
+];
+
+// ICP suggestions
+const ICP_SUGGESTIONS = [
+    'B2B SaaS founders',
+    'Marketing teams',
+    'Product managers',
+    'Sales leaders',
+    'Operations managers',
+    'Remote teams'
+];
+
+// Keyword suggestions
+const KEYWORD_SUGGESTIONS = [
+    'productivity', 'saas', 'startup', 'automation',
+    'efficiency', 'collaboration', 'remote-work', 'tools'
+];
 
 type Section = 'brand' | 'personas' | 'settings';
 
@@ -55,8 +83,16 @@ export function SetupPanel({
 }: SetupPanelProps) {
     const [expandedSection, setExpandedSection] = useState<Section | null>('brand');
 
+    // Convert keywords string to array for tag input
+    const keywordsArray = keywords.split(',').map(k => k.trim()).filter(Boolean);
+    const setKeywordsArray = (arr: string[]) => setKeywords(arr.join(', '));
+
     // Validation helpers
-    const brandValid = company.name.trim() !== '' && company.product.trim() !== '';
+    const brandValid = company.name.trim() !== '' &&
+        company.product.trim() !== '' &&
+        company.valuePropositions.length >= 2 &&
+        company.icp.length >= 2 &&
+        keywordsArray.length >= 3;
     const personasValid = selectedPersonas.length > 0;
     const settingsValid = selectedSubreddits.length > 0;
 
@@ -145,10 +181,43 @@ export function SetupPanel({
                                             id="product"
                                             value={company.product}
                                             onChange={(e) => setCompany({ ...company, product: e.target.value })}
-                                            placeholder="AI-powered presentation tool..."
+                                            placeholder="AI-powered presentation tool that helps teams create stunning slides in minutes..."
                                             className="text-sm resize-none bg-zinc-50 border-zinc-200 focus:border-zinc-400 focus:ring-zinc-400/20 min-h-[80px]"
                                         />
                                     </div>
+
+                                    <DynamicListInput
+                                        label="Value Propositions"
+                                        description="What makes your product valuable? (2-5 items)"
+                                        value={company.valuePropositions}
+                                        onChange={(value) => setCompany({ ...company, valuePropositions: value })}
+                                        placeholder="e.g., Saves 10 hours per week"
+                                        min={2}
+                                        max={5}
+                                        suggestions={VALUE_PROP_SUGGESTIONS}
+                                    />
+
+                                    <DynamicListInput
+                                        label="Ideal Customer Profile (ICP)"
+                                        description="Who are your ideal customers? (2-5 items)"
+                                        value={company.icp}
+                                        onChange={(value) => setCompany({ ...company, icp: value })}
+                                        placeholder="e.g., B2B SaaS founders"
+                                        min={2}
+                                        max={5}
+                                        suggestions={ICP_SUGGESTIONS}
+                                    />
+
+                                    <TagInput
+                                        label="Keywords"
+                                        description="Topics and themes for content targeting (3-15 keywords)"
+                                        value={keywordsArray}
+                                        onChange={setKeywordsArray}
+                                        placeholder="Type keywords and press Enter..."
+                                        suggestions={KEYWORD_SUGGESTIONS}
+                                        min={3}
+                                        max={15}
+                                    />
 
                                     {!brandValid && (
                                         <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-md border border-amber-100">
@@ -310,6 +379,13 @@ export function SetupPanel({
                                             className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900"
                                         />
                                     </div>
+
+                                    {/* Frequency Calculator */}
+                                    <FrequencyCalculator
+                                        postsPerWeek={postsPerWeek}
+                                        personaCount={selectedPersonas.length}
+                                        subredditCount={selectedSubreddits.length}
+                                    />
                                 </div>
                             </motion.div>
                         )}

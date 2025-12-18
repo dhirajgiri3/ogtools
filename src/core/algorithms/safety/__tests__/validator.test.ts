@@ -1,5 +1,5 @@
 import { validateSafety, createMockAccountHistories } from '../validator';
-import { SLIDEFORGE_PERSONAS } from '@/core/data/personas/slideforge';
+import { SLIDEFORGE_PERSONAS } from '@/core/data/personas/demo-data';
 import { ScheduledConversation, Persona } from '@/core/types';
 
 describe('Safety Validator', () => {

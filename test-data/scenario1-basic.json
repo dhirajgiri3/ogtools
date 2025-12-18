@@ -1,0 +1,74 @@
+{
+    "company": {
+        "name": "ProductivityPro",
+        "product": "AI-powered task management and productivity platform",
+        "valuePropositions": [
+            "Reduces task overwhelm with intelligent prioritization",
+            "Integrates seamlessly with existing workflows",
+            "Saves 5+ hours per week on planning and coordination"
+        ],
+        "icp": [
+            "Busy professionals juggling multiple projects",
+            "Operations managers coordinating team workflows",
+            "Consultants managing client deliverables"
+        ],
+        "keywords": [
+            "productivity",
+            "task management",
+            "time saving",
+            "workflow automation",
+            "getting things done"
+        ]
+    },
+    "personas": [
+        {
+            "id": "riley_ops",
+            "name": "Riley Hart",
+            "role": "Head of Operations at 20-person startup",
+            "backstory": "Riley runs operations at a fast-growing SaaS startup. They're constantly pulled in 15 directions - investor updates, team presentations, client QBRs, board decks. Pragmatic personality - doesn't care about perfect, cares about done and good enough.",
+            "vocabulary": {
+                "characteristic": [
+                    "honestly",
+                    "literally",
+                    "chaotic",
+                    "kinda",
+                    "pretty solid",
+                    "ngl",
+                    "tbh"
+                ],
+                "avoid": [
+                    "fundamentally",
+                    "essentially",
+                    "revolutionary",
+                    "game-changer"
+                ],
+                "formality": 0.4
+            },
+            "communicationStyle": {
+                "default": "casual",
+                "acceptable": [
+                    "casual",
+                    "professional"
+                ]
+            },
+            "redditPattern": "periodic_checker",
+            "experienceLevel": "medium",
+            "interests": [
+                "productivity",
+                "operations",
+                "saas",
+                "startup life"
+            ]
+        }
+    ],
+    "subreddits": [
+        "r/productivity"
+    ],
+    "keywords": [
+        "task management",
+        "productivity tools",
+        "workflow"
+    ],
+    "postsPerWeek": 3,
+    "qualityThreshold": 70
+}

@@ -1,0 +1,182 @@
+{
+    "company": {
+        "name": "TeamCollab",
+        "product": "Real-time collaboration platform for distributed teams",
+        "valuePropositions": [
+            "Reduces meeting time by 50%",
+            "Async-first collaboration",
+            "Built-in project management"
+        ],
+        "icp": [
+            "Remote-first companies",
+            "Distributed engineering teams",
+            "Product managers coordinating across time zones"
+        ],
+        "keywords": [
+            "remote work",
+            "async collaboration",
+            "team productivity",
+            "distributed teams"
+        ]
+    },
+    "personas": [
+        {
+            "id": "riley_ops",
+            "name": "Riley Hart",
+            "role": "Head of Operations",
+            "backstory": "Ops lead",
+            "vocabulary": {
+                "characteristic": [
+                    "honestly",
+                    "ngl"
+                ],
+                "avoid": [
+                    "fundamentally"
+                ],
+                "formality": 0.4
+            },
+            "communicationStyle": {
+                "default": "casual",
+                "acceptable": [
+                    "casual",
+                    "professional"
+                ]
+            },
+            "redditPattern": "periodic_checker",
+            "experienceLevel": "medium",
+            "interests": [
+                "productivity",
+                "operations"
+            ]
+        },
+        {
+            "id": "sarah_designer",
+            "name": "Sarah Chen",
+            "role": "Senior Designer",
+            "backstory": "Burnt out designer",
+            "vocabulary": {
+                "characteristic": [
+                    "honestly",
+                    "lowkey",
+                    "ngl"
+                ],
+                "avoid": [
+                    "synergy"
+                ],
+                "formality": 0.35
+            },
+            "communicationStyle": {
+                "default": "casual",
+                "acceptable": [
+                    "casual"
+                ]
+            },
+            "redditPattern": "evening_browser",
+            "experienceLevel": "high",
+            "interests": [
+                "design",
+                "productivity"
+            ]
+        },
+        {
+            "id": "jordan_consults",
+            "name": "Jordan Brooks",
+            "role": "Management Consultant",
+            "backstory": "Analytical consultant",
+            "vocabulary": {
+                "characteristic": [
+                    "framework",
+                    "methodology"
+                ],
+                "avoid": [
+                    "lol",
+                    "lmao"
+                ],
+                "formality": 0.6
+            },
+            "communicationStyle": {
+                "default": "professional",
+                "acceptable": [
+                    "professional",
+                    "technical"
+                ]
+            },
+            "redditPattern": "periodic_checker",
+            "experienceLevel": "high",
+            "interests": [
+                "consulting",
+                "strategy"
+            ]
+        },
+        {
+            "id": "priya_pm",
+            "name": "Priya Nandakumar",
+            "role": "Senior Product Manager",
+            "backstory": "PM",
+            "vocabulary": {
+                "characteristic": [
+                    "iteration",
+                    "roadmap"
+                ],
+                "avoid": [
+                    "lol"
+                ],
+                "formality": 0.55
+            },
+            "communicationStyle": {
+                "default": "professional",
+                "acceptable": [
+                    "professional",
+                    "casual"
+                ]
+            },
+            "redditPattern": "periodic_checker",
+            "experienceLevel": "high",
+            "interests": [
+                "product management"
+            ]
+        },
+        {
+            "id": "alex_sells",
+            "name": "Alex Ramirez",
+            "role": "Head of Sales",
+            "backstory": "Sales leader",
+            "vocabulary": {
+                "characteristic": [
+                    "ROI",
+                    "practical"
+                ],
+                "avoid": [
+                    "lol"
+                ],
+                "formality": 0.5
+            },
+            "communicationStyle": {
+                "default": "professional",
+                "acceptable": [
+                    "professional"
+                ]
+            },
+            "redditPattern": "always_online",
+            "experienceLevel": "high",
+            "interests": [
+                "sales"
+            ]
+        }
+    ],
+    "subreddits": [
+        "r/productivity",
+        "r/SaaS",
+        "r/startups",
+        "r/remotework",
+        "r/ProductManagement"
+    ],
+    "keywords": [
+        "productivity",
+        "collaboration",
+        "remote work",
+        "async tools"
+    ],
+    "postsPerWeek": 10,
+    "qualityThreshold": 65
+}

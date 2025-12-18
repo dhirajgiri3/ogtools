@@ -5,7 +5,7 @@ import {
     ConversationThread,
     ScheduledConversation
 } from '@/core/types';
-import { generateConversation, getRandomArcType } from '@/core/algorithms/conversation/designer';
+import { generateConversation, getRandomArcType, generateConversationWithPersona } from '@/core/algorithms/conversation/designer';
 import { injectAuthenticity } from '@/core/algorithms/authenticity/engine';
 import { predictQuality } from '@/core/algorithms/quality/predictor';
 import { generateSchedule, applyScheduleToConversation } from '@/core/algorithms/timing/engine';
@@ -97,8 +97,13 @@ export async function POST(req: NextRequest) {
         console.log(`⚡ Starting parallel generation of ${input.postsPerWeek} conversations...`);
         const startTime = Date.now();
 
-        // Track persona usage to ensure rotation
-        const usedPosters = new Set<string>();
+        // PRE-ASSIGN personas for each conversation to ensure proper rotation
+        // This avoids race conditions from parallel generation
+        const personaAssignments: string[] = [];
+        for (let i = 0; i < input.postsPerWeek; i++) {
+            const personaIndex = i % input.personas.length;
+            personaAssignments.push(input.personas[personaIndex].id);
+        }
 
         // Create all generation promises with quality-gated regeneration
         const generationPromises = Array.from({ length: input.postsPerWeek }, async (_, i) => {
@@ -109,29 +114,25 @@ export async function POST(req: NextRequest) {
                 ? selectDiverseSubreddit(input.subreddits, weekContext)
                 : input.subreddits[i % input.subreddits.length];
 
+            // Get pre-assigned persona for this conversation
+            const assignedPersonaId = personaAssignments[i];
+            const assignedPersona = input.personas.find(p => p.id === assignedPersonaId)!;
+
             let bestConversation: ConversationThread | null = null;
             let bestScore = 0;
 
             // Try up to MAX_REGENERATION_ATTEMPTS times to get high quality
             for (let attempt = 0; attempt <= MAX_REGENERATION_ATTEMPTS; attempt++) {
                 try {
-                    // Generate base conversation (now tracks persona rotation)
-                    const baseConversation = await generateConversation(
+                    // Generate base conversation with assigned persona as poster
+                    const baseConversation = await generateConversationWithPersona(
                         arcType,
+                        assignedPersona,
                         input.personas,
                         input.company,
                         subreddit,
-                        input.keywords,
-                        usedPosters
+                        input.keywords
                     );
-
-                    // Track which persona was used
-                    usedPosters.add(baseConversation.post.persona.id);
-
-                    // Reset rotation after all personas used once
-                    if (usedPosters.size === input.personas.length) {
-                        usedPosters.clear();
-                    }
 
                     // Apply authenticity transformations (PARALLELIZED)
                     // 1. Post Body

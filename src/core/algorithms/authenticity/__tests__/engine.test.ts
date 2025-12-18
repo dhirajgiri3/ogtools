@@ -1,5 +1,5 @@
 import { injectAuthenticity } from '../engine';
-import { SLIDEFORGE_PERSONAS } from '@/core/data/personas/slideforge';
+import { SLIDEFORGE_PERSONAS } from '@/core/data/personas/demo-data';
 import { Persona } from '@/core/types';
 
 describe('Authenticity Engine', () => {

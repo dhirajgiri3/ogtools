@@ -7,3 +7,8 @@ export { GenerationStatus } from './shared/GenerationStatus';
 export { DemoModeSwitcher } from './shared/DemoModeSwitcher';
 export { AnnotatedText } from './shared/annotated-text';
 export { TimePicker } from './shared/time-picker';
+
+// Setup components
+export { DynamicListInput } from './setup/DynamicListInput';
+export { TagInput } from './setup/TagInput';
+export { FrequencyCalculator } from './setup/FrequencyCalculator';

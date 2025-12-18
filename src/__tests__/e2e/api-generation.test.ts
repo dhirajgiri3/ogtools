@@ -5,7 +5,7 @@
  */
 
 import { GenerationInput, WeekCalendar } from '@/core/types';
-import { SLIDEFORGE_PERSONAS, SLIDEFORGE_COMPANY } from '@/core/data/personas/slideforge';
+import { SLIDEFORGE_PERSONAS, SLIDEFORGE_COMPANY } from '@/core/data/personas/demo-data';
 
 // Mock OpenAI since we're testing the pipeline, not the LLM
 jest.mock('@/shared/lib/api/openai-client', () => ({
@@ -312,7 +312,12 @@ describe('POST /api/generate Integration Tests', () => {
             };
 
             expect(week2Input.previousWeeks).toBeDefined();
-            expect(week2Input.previousWeeks?.[0].metadata.subredditDistribution.get('r/productivity')).toBe(3);
+            const distribution = week2Input.previousWeeks?.[0].metadata.subredditDistribution;
+            if (distribution instanceof Map) {
+                expect(distribution.get('r/productivity')).toBe(3);
+            } else {
+                expect(distribution?.['r/productivity']).toBe(3);
+            }
         });
     });
 

@@ -8,7 +8,7 @@ import {
   generateConversation,
   getRandomArcType
 } from '../designer';
-import { SLIDEFORGE_PERSONAS, SLIDEFORGE_COMPANY } from '@/core/data/personas/slideforge';
+import { SLIDEFORGE_PERSONAS, SLIDEFORGE_COMPANY } from '@/core/data/personas/demo-data';
 import { getSubredditProfile } from '@/core/data/subreddits/profiles';
 import { Persona, SubredditContext } from '@/core/types';
 
