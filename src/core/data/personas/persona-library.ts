@@ -102,10 +102,10 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         backstory: `Riley runs operations at a fast-growing SaaS startup. They're constantly pulled in 15 directions - investor updates, team presentations, client QBRs, board decks. Used to spend 6-8 hours every week on decks, often working late Thursday nights before Friday stakeholder meetings. Has zero design skills and knows it. Pragmatic personality - doesn't care about "perfect", cares about "done and good enough". Discovered productivity tools through Reddit communities and now actively shares what works. Not particularly brand-loyal - will switch tools if something saves time. Recently switched from Notion to Linear, from Superhuman back to Gmail. Values authenticity and straight talk over corporate speak.`,
         vocabulary: {
             characteristic: [
-                'honestly', 'literally', 'chaotic', 'kinda', 'pretty solid',
-                'ngl', 'tbh', 'works well enough', 'good enough', 'pragmatic',
-                'been there', 'that said', 'fwiw', 'lowkey', 'same honestly',
-                'can confirm', 'like', 'idk', 'sorta', 'ish'
+                'honestly', 'ngl', 'tbh', 'lowkey', 'fwiw', 'kinda',
+                'pretty solid', 'works well enough', 'good enough', 'pragmatic',
+                'been there', 'that said', 'can confirm', 'sorta', 'ish',
+                'chaotic', 'literally', 'same', 'idk', 'like'
             ],
             avoid: [
                 'fundamentally', 'essentially', 'revolutionary', 'game-changer',
@@ -193,9 +193,10 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         backstory: `Lead designer at creative agency, been doing this for 8 years. Used to love design, now just wants projects done. Client revisions are soul-crushing. Makes 10-15 decks per week for client presentations. Has strong opinions about design but tired of explaining them. Sarcastic sense of humor as coping mechanism. Active in r/graphic_design and r/designers. Lowkey resents how much time goes into slides vs actual creative work. Knows all the keyboard shortcuts in Adobe Suite and Figma. Judges people who don't know the difference between kerning and tracking.`,
         vocabulary: {
             characteristic: [
-                'honestly', 'lowkey dying', 'ngl', 'ugh', 'same energy',
-                'pain', 'literally', 'i cant even', 'why am i like this',
-                'this but', 'mood', 'felt', 'called out', 'not me'
+                'honestly', 'ngl', 'ugh', 'lowkey',
+                'same energy', 'pain', 'literally', 'i cant even',
+                'this but', 'mood', 'felt', 'called out',
+                'in my experience', 'from a design perspective', 'typically'
             ],
             avoid: [
                 'synergy', 'leverage', 'innovative', 'cutting-edge',
@@ -376,10 +377,11 @@ export const PERSONA_LIBRARY: EnhancedPersona[] = [
         backstory: `Economics major juggling coursework, club leadership, and internship applications. Constantly making presentations - for classes, student org pitches, case competitions, mock interviews. Broke student, uses free Google Slides because can't afford Adobe/Microsoft subscriptions. Hates how long it takes to make slides look decent. Active Reddit user (probably too active, tbh), browses during lectures and late at night. Very casual communication style with friends but can code-switch to formal for academic contexts. Cares deeply about efficiency because time is her main constraint. Early adopter of new tools if they're free or have student pricing. Skeptical of "enterprise" solutions that are overkill for students.`,
         vocabulary: {
             characteristic: [
-                'honestly', 'tbh', 'lowkey', 'highkey', 'ngl', 'literally',
-                'kinda', 'super', 'imo', 'deadass', 'fr', 'lol',
-                'wait actually', 'genuinely', 'no bc', 'real talk', 'same tho',
-                'not me doing X', 'why am I like this', 'ok so', 'like idk', 'valid', 'slay'
+                'honestly', 'tbh', 'ngl', 'lowkey', 'fr', 'lol',
+                'kinda', 'super', 'imo', 'literally',
+                'wait actually', 'genuinely', 'real talk', 'same tho',
+                'ok so', 'like idk', 'valid', 'I believe',
+                'from my understanding', 'in my experience'
             ],
             avoid: [
                 'leverage', 'synergy', 'enterprise', 'corporate speak',

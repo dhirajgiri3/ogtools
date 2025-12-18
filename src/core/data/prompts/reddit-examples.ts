@@ -16,8 +16,6 @@ export interface RedditExample {
     qualityRating: number; // 1-10, how authentic this feels
 }
 
-
-
 // ============================================
 // POST EXAMPLES - Casual Subreddits
 // ============================================

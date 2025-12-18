@@ -142,12 +142,13 @@ export function SetupPanel({
     return (
         <div className="h-full flex flex-col w-full sm:w-80 md:w-80 lg:w-80 bg-white border-r border-zinc-200">
             {/* Panel Header with Progress */}
-            <div className="flex-shrink-0 p-4 sm:p-5 border-b border-zinc-200 bg-white">\n                <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <h2 className="font-semibold text-zinc-900 text-sm flex items-center gap-2">
-                    Campaign Setup
-                </h2>
-                <span className="text-xs font-medium text-zinc-500 tabular-nums">{completedSections}/{totalSections}</span>
-            </div>
+            <div className="flex-shrink-0 p-4 sm:p-5 border-b border-zinc-200 bg-white">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <h2 className="font-semibold text-zinc-900 text-sm flex items-center gap-2">
+                        Campaign Setup
+                    </h2>
+                    <span className="text-xs font-medium text-zinc-500 tabular-nums">{completedSections}/{totalSections}</span>
+                </div>
 
                 {/* Progress Bar */}
                 <div className="h-1 bg-zinc-100 rounded-full overflow-hidden">

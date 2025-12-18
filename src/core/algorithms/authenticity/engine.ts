@@ -137,8 +137,6 @@ function addHumanImperfections(
     return result;
 }
 
-
-
 /**
  * Inject persona-specific vocabulary and phrases
  */
@@ -156,8 +154,12 @@ function injectPersonalityMarkers(
 
     const { characteristic } = persona.vocabulary;
 
-    // 1. Interjection at start (40% chance - increased for more personality)
-    if (Math.random() < 0.4 && result.length > 0) {
+    // 1. Interjection at start (adaptive based on persona formality)
+    // Casual personas (< 0.4): 25% chance, Professional (> 0.4): 15% chance
+    const personalityRate = persona.vocabulary.formality < 0.4 ? 0.25 : 0.15;
+    const wordCount = result.split(/\s+/).length;
+
+    if (Math.random() < personalityRate && wordCount > 15 && result.length > 0) {
         const interjections = characteristic.filter(word =>
             INTERJECTION_MARKERS.includes(word.toLowerCase())
         );
@@ -201,8 +203,12 @@ function addRedditCulture(
         return result;
     }
 
-    // 1. Casual interjections (50% chance - increased for casual subs)
-    if (Math.random() < 0.5) {
+    // 1. Casual interjections (adaptive based on subreddit formality)
+    // Casual subs (< 0.5): 30% chance, Formal subs (> 0.5): 20% chance
+    const redditCultureRate = subreddit.formalityLevel < 0.5 ? 0.30 : 0.20;
+    const wordCount = result.split(/\s+/).length;
+
+    if (Math.random() < redditCultureRate && wordCount > 30) {
         const redditMarkers = subreddit.acceptableMarkers.filter(m =>
             ['lol', 'lmao', 'tbh', 'ngl', 'fr'].includes(m.toLowerCase())
         );
@@ -210,8 +216,7 @@ function addRedditCulture(
         if (redditMarkers.length > 0) {
             const marker = redditMarkers[Math.floor(Math.random() * redditMarkers.length)];
 
-            // Add at end
-            if (!result.endsWith(marker) && Math.random() < 0.7) {
+            if (!result.endsWith(marker) && Math.random() < 0.4) {
                 result = `${result} ${marker}`;
             }
         }

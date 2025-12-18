@@ -225,7 +225,7 @@ export function buildPostPrompt(
 3. YOUR AUTHENTIC VOICE
    How would ${persona.name} ACTUALLY type this on Reddit?
    → Formality: ${formalityGuidance}
-   → Words you USE: ${persona.vocabulary.characteristic.slice(0, 8).join(', ')}
+   → Words you USE (sparingly, not every sentence): ${persona.vocabulary.characteristic.slice(0, 5).join(', ')}
    → Words you NEVER say: ${persona.vocabulary.avoid.slice(0, 5).join(', ')}
    → You're typing on your phone, kind of quickly, not overthinking it
 
@@ -263,6 +263,8 @@ ${examples}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 • DON'T use: ${AI_ANTI_PATTERNS.slice(3, 8).join(', ')}
+• DON'T overuse slang markers - use sparingly (max 1-2 per post)
+• DON'T start sentences with "honestly" or "ngl" repeatedly
 • DON'T write perfectly formatted paragraphs
 • DON'T sound like corporate speak or an essay
 • DON'T be overly helpful or polite - you're frustrated!
@@ -277,7 +279,7 @@ function getPurposeInstructions(purpose: string, posterName: string, company: Co
     const instructions: Record<string, string> = {
         validate_problem: `Your ONLY job: Make ${posterName} feel understood.
 
-        ✓ Express empathy: "ugh i felt this" or "been there so many times"
+        ✓ Express empathy: "been there" or "i felt this" or "same"
         ✓ Share that you've experienced similar (briefly)
         ✓ Make them feel NOT ALONE
 
@@ -410,7 +412,7 @@ DO SAY:
 ✓ "in my experience"
 ✓ "i tried X and it helps with Y"
 
-Example: "ngl i started using [tool] a few months ago and it cut my time like 30%. still not perfect but way better than manually doing everything"`
+Example: "i started using [tool] a few months ago and it cut my time by about 30%. still not perfect but way better than doing everything manually"`
         : `
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️  CRITICAL: NO PRODUCT MENTIONS
