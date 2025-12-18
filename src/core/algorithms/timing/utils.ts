@@ -11,12 +11,7 @@ export function addMinutes(date: Date, minutes: number): Date {
     return new Date(date.getTime() + minutes * 60000);
 }
 
-/**
- * Add hours to a date
- */
-export function addHours(date: Date, hours: number): Date {
-    return new Date(date.getTime() + hours * 3600000);
-}
+
 
 /**
  * Add days to a date

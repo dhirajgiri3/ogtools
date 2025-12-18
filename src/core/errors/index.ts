@@ -4,9 +4,9 @@
  * Provides specific error types for better error handling and debugging
  */
 
-// ============================================
-// BASE ERROR CLASSES
-// ============================================
+/**
+ * Base Error Class
+ */
 
 export class RedditMastermindError extends Error {
     constructor(
@@ -21,9 +21,7 @@ export class RedditMastermindError extends Error {
     }
 }
 
-// ============================================
-// VALIDATION ERRORS
-// ============================================
+
 
 export class ValidationError extends RedditMastermindError {
     constructor(message: string, public field?: string, details?: Record<string, any>) {
@@ -36,138 +34,19 @@ export class FrequencyLimitError extends RedditMastermindError {
         message: string,
         public limit: number,
         public actual: number,
-        public entity: string
+        public timeframe: string,
+        details?: Record<string, any>
     ) {
-        super(
-            message,
-            'FREQUENCY_LIMIT_EXCEEDED',
-            400,
-            { limit, actual, entity }
-        );
+        super(message, 'FREQUENCY_LIMIT_ERROR', 429, {
+            ...details,
+            limit,
+            actual,
+            timeframe
+        });
     }
 }
 
-export class QualityThresholdError extends RedditMastermindError {
-    constructor(
-        message: string,
-        public threshold: number,
-        public actualScore: number
-    ) {
-        super(
-            message,
-            'QUALITY_THRESHOLD_NOT_MET',
-            400,
-            { threshold, actualScore }
-        );
-    }
-}
 
-// ============================================
-// GENERATION ERRORS
-// ============================================
-
-export class GenerationError extends RedditMastermindError {
-    constructor(message: string, details?: Record<string, any>) {
-        super(message, 'GENERATION_ERROR', 500, details);
-    }
-}
-
-export class PersonaSelectionError extends RedditMastermindError {
-    constructor(message: string, availablePersonas: number, required: number) {
-        super(
-            message,
-            'PERSONA_SELECTION_ERROR',
-            400,
-            { availablePersonas, required }
-        );
-    }
-}
-
-export class SubredditSelectionError extends RedditMastermindError {
-    constructor(message: string, availableSubreddits: number, required: number) {
-        super(
-            message,
-            'SUBREDDIT_SELECTION_ERROR',
-            400,
-            { availableSubreddits, required }
-        );
-    }
-}
-
-// ============================================
-// LLM ERRORS
-// ============================================
-
-export class LLMError extends RedditMastermindError {
-    constructor(
-        message: string,
-        public provider: string,
-        public originalError?: Error
-    ) {
-        super(
-            message,
-            'LLM_ERROR',
-            500,
-            { provider, originalError: originalError?.message }
-        );
-    }
-}
-
-export class RateLimitError extends RedditMastermindError {
-    constructor(
-        message: string,
-        public retryAfter?: number
-    ) {
-        super(
-            message,
-            'RATE_LIMIT_ERROR',
-            429,
-            { retryAfter }
-        );
-    }
-}
-
-export class APIKeyError extends RedditMastermindError {
-    constructor(message: string = 'API key is missing or invalid') {
-        super(message, 'API_KEY_ERROR', 401);
-    }
-}
-
-// ============================================
-// SAFETY ERRORS
-// ============================================
-
-export class SafetyViolationError extends RedditMastermindError {
-    constructor(
-        message: string,
-        public violations: string[]
-    ) {
-        super(
-            message,
-            'SAFETY_VIOLATION',
-            400,
-            { violations }
-        );
-    }
-}
-
-export class CollusionDetectedError extends RedditMastermindError {
-    constructor(
-        message: string,
-        public collusionRate: number
-    ) {
-        super(
-            message,
-            'COLLUSION_DETECTED',
-            400,
-            { collusionRate }
-        );
-    }
-}
-
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
 
 /**
  * Check if error is a known Reddit Mastermind error

@@ -2,21 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
     GenerationInput,
     WeekCalendar,
-    ConversationThread,
-    ScheduledConversation
+    ConversationThread
 } from '@/core/types';
-import { generateConversation, getRandomArcType, generateConversationWithPersona } from '@/core/algorithms/conversation/designer';
+import { generateConversationWithPersona } from '@/core/algorithms/conversation/designer';
 import { injectAuthenticity } from '@/core/algorithms/authenticity/engine';
 import { predictQuality } from '@/core/algorithms/quality/predictor';
 import { generateSchedule, applyScheduleToConversation } from '@/core/algorithms/timing/engine';
 import { validateSafety } from '@/core/algorithms/safety/validator';
-import { Comment, Reply } from '@/core/types';
-import { GENERATION_LIMITS, LLM_CONFIG } from '@/config/constants';
+import { GENERATION_LIMITS } from '@/config/constants';
 import {
     ValidationError,
-    GenerationError,
     toErrorResponse,
-    APIKeyError,
     FrequencyLimitError
 } from '@/core/errors';
 import { extractWeekContext, selectDiverseSubreddit } from '@/core/algorithms/timing/week-context';
@@ -26,16 +22,6 @@ import { extractCompanyActivities } from '@/core/algorithms/company/activity-ext
  * POST /api/generate
  * 
  * Main generation endpoint for creating Reddit content calendars.
- * 
- * Flow:
- * 1. Parse and validate input
- * 2. Initialize Gemini client
- * 3. Generate conversations (with arc rotation)
- * 4. Apply authenticity transformations
- * 5. Score quality (regenerate if below threshold)
- * 6. Generate schedule
- * 7. Validate safety
- * 8. Return complete calendar
  */
 
 export async function POST(req: NextRequest) {
@@ -75,10 +61,10 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // INTELLIGENT ACTIVITY EXTRACTION (Step 1 of Refinement Plan)
-        // If activities are missing (first time setup), extract them using AI
+        // If activities are missing (first time setup), extract them
+
         if (!input.company.activities || input.company.activities.length === 0) {
-            console.log('🧠 Extracting intelligent activities for company...');
+
             try {
                 input.company.activities = await extractCompanyActivities(input.company);
             } catch (err) {
@@ -153,8 +139,8 @@ export async function POST(req: NextRequest) {
         console.log(`📋 Personas received (${input.personas.length}):`, input.personas.map(p => p.id));
         const startTime = Date.now();
 
-        // PRE-ASSIGN personas for each conversation to ensure proper rotation
-        // This avoids race conditions from parallel generation
+        // Pre-assign personas for each conversation to ensure proper rotation
+
         const personaAssignments: string[] = [];
         for (let i = 0; i < input.postsPerWeek; i++) {
             const personaIndex = i % input.personas.length;

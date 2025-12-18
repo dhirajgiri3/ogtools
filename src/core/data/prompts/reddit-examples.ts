@@ -16,20 +16,13 @@ export interface RedditExample {
     qualityRating: number; // 1-10, how authentic this feels
 }
 
-export interface PromptTemplate {
-    name: string;
-    systemPrompt: string;
-    userPromptTemplate: string;
-    fewShotExamples: RedditExample[];
-    chainOfThought?: string[];
-    antiPatterns: string[];
-}
+
 
 // ============================================
 // POST EXAMPLES - Casual Subreddits
 // ============================================
 
-export const CASUAL_FRUSTRATION_POSTS: RedditExample[] = [
+const CASUAL_FRUSTRATION_POSTS: RedditExample[] = [
     {
         type: 'post',
         subredditType: 'casual',
@@ -106,7 +99,7 @@ export const CASUAL_FRUSTRATION_POSTS: RedditExample[] = [
     }
 ];
 
-export const CASUAL_CURIOSITY_POSTS: RedditExample[] = [
+const CASUAL_CURIOSITY_POSTS: RedditExample[] = [
     {
         type: 'post',
         subredditType: 'casual',
@@ -170,7 +163,7 @@ export const CASUAL_CURIOSITY_POSTS: RedditExample[] = [
 // POST EXAMPLES - Professional Subreddits
 // ============================================
 
-export const PROFESSIONAL_FRUSTRATION_POSTS: RedditExample[] = [
+const PROFESSIONAL_FRUSTRATION_POSTS: RedditExample[] = [
     {
         type: 'post',
         subredditType: 'professional',
@@ -218,7 +211,7 @@ export const PROFESSIONAL_FRUSTRATION_POSTS: RedditExample[] = [
     }
 ];
 
-export const PROFESSIONAL_CURIOSITY_POSTS: RedditExample[] = [
+const PROFESSIONAL_CURIOSITY_POSTS: RedditExample[] = [
     {
         type: 'post',
         subredditType: 'professional',
@@ -253,7 +246,7 @@ export const PROFESSIONAL_CURIOSITY_POSTS: RedditExample[] = [
 // COMMENT EXAMPLES - Casual Subreddits
 // ============================================
 
-export const CASUAL_EMPATHY_COMMENTS: RedditExample[] = [
+const CASUAL_EMPATHY_COMMENTS: RedditExample[] = [
     {
         type: 'comment',
         subredditType: 'casual',
@@ -326,7 +319,7 @@ export const CASUAL_EMPATHY_COMMENTS: RedditExample[] = [
     }
 ];
 
-export const CASUAL_CLARIFYING_COMMENTS: RedditExample[] = [
+const CASUAL_CLARIFYING_COMMENTS: RedditExample[] = [
     {
         type: 'comment',
         subredditType: 'casual',
@@ -371,7 +364,7 @@ export const CASUAL_CLARIFYING_COMMENTS: RedditExample[] = [
     }
 ];
 
-export const CASUAL_HELPFUL_COMMENTS: RedditExample[] = [
+const CASUAL_HELPFUL_COMMENTS: RedditExample[] = [
     {
         type: 'comment',
         subredditType: 'casual',
@@ -420,7 +413,7 @@ export const CASUAL_HELPFUL_COMMENTS: RedditExample[] = [
 // COMMENT EXAMPLES - Professional Subreddits
 // ============================================
 
-export const PROFESSIONAL_EMPATHY_COMMENTS: RedditExample[] = [
+const PROFESSIONAL_EMPATHY_COMMENTS: RedditExample[] = [
     {
         type: 'comment',
         subredditType: 'professional',
@@ -465,7 +458,7 @@ export const PROFESSIONAL_EMPATHY_COMMENTS: RedditExample[] = [
     }
 ];
 
-export const PROFESSIONAL_HELPFUL_COMMENTS: RedditExample[] = [
+const PROFESSIONAL_HELPFUL_COMMENTS: RedditExample[] = [
     {
         type: 'comment',
         subredditType: 'professional',
@@ -513,7 +506,7 @@ export const PROFESSIONAL_HELPFUL_COMMENTS: RedditExample[] = [
 // REPLY EXAMPLES - Short and Punchy
 // ============================================
 
-export const CASUAL_REPLIES: RedditExample[] = [
+const CASUAL_REPLIES: RedditExample[] = [
     {
         type: 'reply',
         subredditType: 'casual',
@@ -627,7 +620,7 @@ export const CASUAL_REPLIES: RedditExample[] = [
     }
 ];
 
-export const PROFESSIONAL_REPLIES: RedditExample[] = [
+const PROFESSIONAL_REPLIES: RedditExample[] = [
     {
         type: 'reply',
         subredditType: 'professional',
@@ -803,16 +796,3 @@ export const AI_ANTI_PATTERNS = [
     'perfect grammar and punctuation'
 ];
 
-export const HUMAN_MARKERS_TO_PRESERVE = [
-    'lowercase "i"',
-    'missing punctuation at end',
-    'casual markers (lol, tbh, ngl, fr)',
-    'typos (teh, adn, waht)',
-    'missing apostrophes (dont, cant)',
-    'sentence fragments',
-    'starting with lowercase',
-    'ellipsis trails (...)',
-    'double spaces',
-    'rhetorical questions',
-    'casual interjections (ugh, wait, oh)'
-];

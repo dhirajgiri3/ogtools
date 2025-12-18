@@ -2,22 +2,40 @@ import { Persona, SubredditContext } from '@/core/types';
 import { getSubredditProfile } from '@/core/data/subreddits/profiles';
 
 /**
- * Authenticity Engine (Layer 3) ⭐
+ * Authenticity Engine
  * 
- * THE CORE DIFFERENTIATOR
- * 
- * Transforms AI-perfect text into natural, human-like Reddit conversations.
- * Applies 5 layers of transformation:
- * 1. Subreddit Calibration - Adapt to community norms
- * 2. Human Imperfections - Add typos, missing punctuation
- * 3. Personality Markers - Inject persona-specific vocabulary
- * 4. Reddit Culture - Add Reddit-specific language patterns
- * 5. Structure Breaking - Remove AI patterns like numbered lists
+ * Transforms generated text into natural, human-like Reddit conversations using multiple transformation layers:
+ * Subreddit Calibration, Human Imperfections, Personality Markers, Reddit Culture, and Structure Breaking.
  */
 
-// ============================================
-// LAYER 1: SUBREDDIT CALIBRATION
-// ============================================
+const CASUAL_MARKERS = ['mic', 'lmao', 'ngl', 'tbh', 'fr'];
+
+const TYPO_MAP: Record<string, string> = {
+    ' the ': ' teh ',
+    ' and ': ' adn ',
+    ' have ': ' ahve ',
+    ' with ': ' wiht ',
+    ' that ': ' taht ',
+    ' what ': ' waht ',
+    ' really ': ' realy ',
+    ' totally ': ' totaly '
+};
+
+const CONTRACTION_MAP: Record<string, string> = {
+    "don't": "dont",
+    "can't": "cant",
+    "won't": "wont",
+    "doesn't": "doesnt",
+    "isn't": "isnt"
+};
+
+const INTERJECTION_MARKERS = ['honestly', 'tbh', 'ngl', 'fr'];
+const QUALIFIERS = ['kinda', 'pretty', 'sort of', 'basically'];
+const ADJECTIVES = ['good', 'great', 'solid', 'nice', 'useful', 'helpful'];
+const EMPHASIS_WORDS = ['never', 'so', 'really', 'way', 'super'];
+
+
+
 
 /**
  * Calibrate content for subreddit formality and culture
@@ -31,8 +49,8 @@ function calibrateForSubreddit(
     // For technical/professional subs (formality > 0.6)
     if (subreddit.formalityLevel > 0.6) {
         // Remove casual markers
-        const casualMarkers = ['lol', 'lmao', 'ngl', 'tbh', 'fr'];
-        casualMarkers.forEach(marker => {
+        // Remove casual markers
+        CASUAL_MARKERS.forEach(marker => {
             const regex = new RegExp(`\\b${marker}\\b`, 'gi');
             result = result.replace(regex, '');
         });
@@ -47,9 +65,7 @@ function calibrateForSubreddit(
     return result;
 }
 
-// ============================================
-// LAYER 2: HUMAN IMPERFECTIONS
-// ============================================
+
 
 /**
  * Add realistic human imperfections
@@ -89,36 +105,17 @@ function addHumanImperfections(
 
     // 4. More diverse typos (25% chance)
     if (Math.random() < imperfectionRate * 0.35) {
-        const typos: Record<string, string> = {
-            ' the ': ' teh ',
-            ' and ': ' adn ',
-            ' have ': ' ahve ',
-            ' with ': ' wiht ',
-            ' that ': ' taht ',
-            ' what ': ' waht ',
-            ' really ': ' realy ',
-            ' totally ': ' totaly '
-        };
-
-        const typoKeys = Object.keys(typos);
+        const typoKeys = Object.keys(TYPO_MAP);
         const randomTypo = typoKeys[Math.floor(Math.random() * typoKeys.length)];
 
         if (result.includes(randomTypo)) {
-            result = result.replace(randomTypo, typos[randomTypo]);
+            result = result.replace(randomTypo, TYPO_MAP[randomTypo]);
         }
     }
 
     // 5. Missing apostrophes (30% chance in casual)
     if (Math.random() < imperfectionRate * 0.4 && subreddit.formalityLevel < 0.6) {
-        const contractions: Record<string, string> = {
-            "don't": "dont",
-            "can't": "cant",
-            "won't": "wont",
-            "doesn't": "doesnt",
-            "isn't": "isnt"
-        };
-
-        Object.entries(contractions).forEach(([correct, incorrect]) => {
+        Object.entries(CONTRACTION_MAP).forEach(([correct, incorrect]) => {
             if (Math.random() < 0.3) {
                 result = result.replace(new RegExp(correct, 'g'), incorrect);
             }
@@ -140,9 +137,7 @@ function addHumanImperfections(
     return result;
 }
 
-// ============================================
-// LAYER 3: PERSONALITY MARKERS
-// ============================================
+
 
 /**
  * Inject persona-specific vocabulary and phrases
@@ -164,7 +159,7 @@ function injectPersonalityMarkers(
     // 1. Interjection at start (40% chance - increased for more personality)
     if (Math.random() < 0.4 && result.length > 0) {
         const interjections = characteristic.filter(word =>
-            ['honestly', 'tbh', 'ngl', 'fr'].includes(word.toLowerCase())
+            INTERJECTION_MARKERS.includes(word.toLowerCase())
         );
 
         if (interjections.length > 0) {
@@ -175,12 +170,10 @@ function injectPersonalityMarkers(
 
     // 2. Mid-sentence qualifiers (30% chance)
     if (Math.random() < 0.3) {
-        const qualifiers = ['kinda', 'pretty', 'sort of', 'basically'];
-        const qualifier = qualifiers[Math.floor(Math.random() * qualifiers.length)];
+        const qualifier = QUALIFIERS[Math.floor(Math.random() * QUALIFIERS.length)];
 
         // Add before adjectives
-        const adjectives = ['good', 'great', 'solid', 'nice', 'useful', 'helpful'];
-        adjectives.forEach(adj => {
+        ADJECTIVES.forEach(adj => {
             const regex = new RegExp(`\\b${adj}\\b`, 'i');
             if (regex.test(result) && Math.random() < 0.5) {
                 result = result.replace(regex, `${qualifier} ${adj}`);
@@ -191,9 +184,7 @@ function injectPersonalityMarkers(
     return result;
 }
 
-// ============================================
-// LAYER 4: REDDIT CULTURE
-// ============================================
+
 
 /**
  * Add Reddit-specific language patterns
@@ -228,8 +219,7 @@ function addRedditCulture(
 
     // 2. Emphasis with caps (15% chance)
     if (Math.random() < 0.15) {
-        const emphasisWords = ['never', 'so', 'really', 'way', 'super'];
-        emphasisWords.forEach(word => {
+        EMPHASIS_WORDS.forEach(word => {
             const regex = new RegExp(`\\b${word}\\b`, 'i');
             if (regex.test(result) && Math.random() < 0.4) {
                 result = result.replace(regex, word.toUpperCase());
@@ -245,9 +235,7 @@ function addRedditCulture(
     return result;
 }
 
-// ============================================
-// LAYER 5: STRUCTURE BREAKING
-// ============================================
+
 
 /**
  * Break perfect AI structure patterns
@@ -298,9 +286,7 @@ function breakPerfectStructure(
     return result;
 }
 
-// ============================================
-// MAIN EXPORT FUNCTION
-// ============================================
+
 
 /**
  * Apply all authenticity transformations
@@ -336,24 +322,4 @@ export async function injectAuthenticity(
     return result;
 }
 
-/**
- * Test helper: Apply authenticity without persona/subreddit lookup
- */
-export function applyBasicAuthenticity(content: string): string {
-    let result = content;
 
-    // Basic imperfections
-    if (Math.random() < 0.3 && result.endsWith('.')) {
-        result = result.slice(0, -1);
-    }
-
-    // Remove numbered lists
-    result = result.replace(/^\d+\.\s+/gm, '- ');
-
-    // Add casual marker
-    if (Math.random() < 0.2) {
-        result = `${result} (just my 2 cents)`;
-    }
-
-    return result.trim();
-}

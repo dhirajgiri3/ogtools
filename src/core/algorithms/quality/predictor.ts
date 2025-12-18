@@ -1,36 +1,74 @@
 import {
     ConversationThread,
     QualityScore,
-    QualityDimensions,
     Issue,
     Strength,
     SubredditContext,
     CompanyContext
 } from '@/core/types';
 import { getSubredditProfile } from '@/core/data/subreddits/profiles';
-import { calculateTextSimilarity, calculateStyleVariance } from '@/shared/lib/utils/text-similarity';
+import { calculateStyleVariance } from '@/shared/lib/utils/text-similarity';
 
 /**
- * Quality Predictor (Layer 4)
+ * Quality Predictor
  * 
- * Scores conversations across 5 dimensions to predict quality and authenticity.
- * This is a heuristic proxy signal - subjective but useful for QA.
- * 
- * Dimensions:
- * 1. Subreddit Relevance (0-20): Topic alignment, tone match
- * 2. Problem Specificity (0-20): Concrete details, specific situation
- * 3. Authenticity (0-25): AI pattern detection, style variance ⭐ HIGHEST WEIGHT
- * 4. Value First (0-20): Product mention timing, value content
- * 5. Engagement Design (0-15): Question in post, OP engagement
+ * Scores conversations across multiple dimensions to predict quality and authenticity.
+ * Dimensions: Subreddit Relevance, Problem Specificity, Authenticity, Value First, Engagement Design.
  */
 
-// ============================================
-// DIMENSION SCORERS
-// ============================================
+const AI_PATTERNS = [
+    /\d+\.\s+/g,                              // Numbered lists
+    /certainly/gi,
+    /furthermore/gi,
+    /moreover/gi,
+    /\bthus\b/gi,
+    /\bhence\b/gi,
+    // Balanced argument patterns
+    /on (the )?one hand.*on (the )?other hand/gi,
+    /while.*however/gi,
+    /although.*nevertheless/gi,
+    // Overly helpful patterns
+    /hope this helps/gi,
+    /let me know if you have (any )?questions/gi,
+    /feel free to/gi,
+    /don't hesitate to/gi,
+    // Enthusiasm markers
+    /\babsolutely\b/gi,
+    /\bdefinitely\b/gi,
+    /great question/gi,
+    // Corporate/formal speak
+    /\bcomprehensive\b/gi,
+    /\bthorough\b/gi,
+    /\bleverage\b/gi,
+    /\butilize\b/gi,
+    /in conclusion/gi,
+    /to summarize/gi
+];
 
-/**
- * Dimension 1: Subreddit Relevance (0-20)
- */
+const EXPANDED_CONTRACTIONS = [
+    /\bdo not\b/gi,
+    /\bdoes not\b/gi,
+    /\bdid not\b/gi,
+    /\bcannot\b/gi,
+    /\bcan not\b/gi,
+    /\bwill not\b/gi,
+    /\bwould not\b/gi,
+    /\bcould not\b/gi,
+    /\bshould not\b/gi,
+    /\bhas not\b/gi,
+    /\bhave not\b/gi,
+    /\bis not\b/gi,
+    /\bare not\b/gi,
+    /\bwas not\b/gi,
+    /\bwere not\b/gi,
+    /\bit is\b/gi,
+    /\bthat is\b/gi,
+    /\bI am\b/gi,
+    /\bI have\b/gi,
+    /\bI will\b/gi,
+    /\bI would\b/gi
+];
+
 function scoreSubredditRelevance(
     thread: ConversationThread,
     subreddit: SubredditContext,
@@ -101,7 +139,7 @@ function scoreSubredditRelevance(
         if (topicMatches.length >= 1) score += 5;
     }
 
-    // Old check removed (integrated above)
+
 
     // Formality match (0-5)
     const formalityMatch = 1 - Math.abs(
@@ -150,9 +188,7 @@ function scoreSubredditRelevance(
     return { score, issues, strengths };
 }
 
-/**
- * Dimension 2: Problem Specificity (0-20)
- */
+
 function scoreProblemSpecificity(
     thread: ConversationThread
 ): { score: number; issues: Issue[]; strengths: Strength[] } {
@@ -234,9 +270,7 @@ function scoreProblemSpecificity(
     return { score, issues, strengths };
 }
 
-/**
- * Dimension 3: Authenticity (0-25) ⭐ HIGHEST WEIGHT
- */
+
 function scoreAuthenticity(
     thread: ConversationThread
 ): { score: number; issues: Issue[]; strengths: Strength[] } {
@@ -253,37 +287,7 @@ function scoreAuthenticity(
 
     const allContentLower = allContent.toLowerCase();
 
-    // EXPANDED: AI patterns to detect
-    const aiPatterns = [
-        /\d+\.\s+/g,                              // Numbered lists
-        /certainly/gi,
-        /furthermore/gi,
-        /moreover/gi,
-        /\bthus\b/gi,
-        /\bhence\b/gi,
-        // NEW: Balanced argument patterns
-        /on (the )?one hand.*on (the )?other hand/gi,
-        /while.*however/gi,
-        /although.*nevertheless/gi,
-        // NEW: Overly helpful patterns
-        /hope this helps/gi,
-        /let me know if you have (any )?questions/gi,
-        /feel free to/gi,
-        /don't hesitate to/gi,
-        // NEW: Enthusiasm markers
-        /\babsolutely\b/gi,
-        /\bdefinitely\b/gi,
-        /great question/gi,
-        // NEW: Corporate/formal speak
-        /\bcomprehensive\b/gi,
-        /\bthorough\b/gi,
-        /\bleverage\b/gi,
-        /\butilize\b/gi,
-        /in conclusion/gi,
-        /to summarize/gi
-    ];
-
-    let patternMatches = aiPatterns.reduce((count, pattern) => {
+    let patternMatches = AI_PATTERNS.reduce((count, pattern) => {
         const matches = allContent.match(pattern);
         return count + (matches ? matches.length : 0);
     }, 0);
@@ -399,32 +403,8 @@ function scoreAuthenticity(
  * Helper: Detect when AI expands contractions (e.g., "do not" instead of "don't")
  */
 function detectMissingContractions(content: string): { expandedCount: number } {
-    const expandedForms = [
-        /\bdo not\b/gi,
-        /\bdoes not\b/gi,
-        /\bdid not\b/gi,
-        /\bcannot\b/gi,
-        /\bcan not\b/gi,
-        /\bwill not\b/gi,
-        /\bwould not\b/gi,
-        /\bcould not\b/gi,
-        /\bshould not\b/gi,
-        /\bhas not\b/gi,
-        /\bhave not\b/gi,
-        /\bis not\b/gi,
-        /\bare not\b/gi,
-        /\bwas not\b/gi,
-        /\bwere not\b/gi,
-        /\bit is\b/gi,
-        /\bthat is\b/gi,
-        /\bI am\b/gi,
-        /\bI have\b/gi,
-        /\bI will\b/gi,
-        /\bI would\b/gi
-    ];
-
     let count = 0;
-    for (const pattern of expandedForms) {
+    for (const pattern of EXPANDED_CONTRACTIONS) {
         const matches = content.match(pattern);
         if (matches) {
             count += matches.length;
@@ -434,9 +414,7 @@ function detectMissingContractions(content: string): { expandedCount: number } {
     return { expandedCount: count };
 }
 
-/**
- * Dimension 4: Value First (0-20)
- */
+
 function scoreValueFirst(
     thread: ConversationThread
 ): { score: number; issues: Issue[]; strengths: Strength[] } {
@@ -512,9 +490,7 @@ function scoreValueFirst(
     return { score, issues, strengths };
 }
 
-/**
- * Dimension 5: Engagement Design (0-15)
- */
+
 function scoreEngagementDesign(
     thread: ConversationThread
 ): { score: number; issues: Issue[]; strengths: Strength[] } {
@@ -583,9 +559,7 @@ function scoreEngagementDesign(
     return { score, issues, strengths };
 }
 
-// ============================================
-// MAIN SCORING FUNCTION
-// ============================================
+
 
 /**
  * Predict quality score for conversation thread

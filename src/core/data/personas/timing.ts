@@ -80,31 +80,41 @@ export const PERSONA_TIMING_PROFILES: Record<string, PersonaTiming> = {
             min: 35,                              // 35 minutes minimum
             max: 200                              // ~3.5 hours maximum
         }
+    },
+    'sarah_designer': {
+        timezone: 'America/New_York',           // EST
+        activeHours: [
+            { start: 10, end: 14 },               // Late start/lunch
+            { start: 19, end: 26 },                // Late night grind
+        ],
+        peakActivity: [11, 23, 1],              // Late morning, late night
+        weekendPattern: 'active',               // Active on weekends
+        typicalResponseDelay: {
+            min: 15,
+            max: 120
+        }
+    },
+
+    'mark_trainer': {
+        timezone: 'America/Chicago',            // CST
+        activeHours: [
+            { start: 8, end: 17 },                // Business hours
+            { start: 19, end: 21 }                // Evening check
+        ],
+        peakActivity: [9, 13, 20],              // Morning, post-lunch, evening
+        weekendPattern: 'reduced',              // Less active
+        typicalResponseDelay: {
+            min: 10,                              // Very responsive
+            max: 90
+        }
     }
 };
-
-// Map short persona names to full IDs
-const PERSONA_ID_ALIASES: Record<string, string> = {
-    'priya': 'priya_pm',
-    'jordan': 'jordan_consults',
-    'riley': 'riley_ops',
-    'emily': 'emily_econ',
-    'alex': 'alex_sells'
-};
-
-/**
- * Normalize persona ID (handles both short names and full IDs)
- */
-function normalizePersonaId(personaId: string): string {
-    return PERSONA_ID_ALIASES[personaId] || personaId;
-}
 
 /**
  * Get persona timing profile
  */
 export function getPersonaTiming(personaId: string): PersonaTiming {
-    const normalizedId = normalizePersonaId(personaId);
-    const timing = PERSONA_TIMING_PROFILES[normalizedId];
+    const timing = PERSONA_TIMING_PROFILES[personaId];
 
     if (!timing) {
         console.warn(`No timing profile found for ${personaId}, using defaults`);

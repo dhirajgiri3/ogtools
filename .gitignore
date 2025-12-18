@@ -46,3 +46,25 @@ error.log
 
 # test coverage (regenerated on test runs)
 coverage/
+
+# System Files
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary & Backups
+tmp/
+temp/
+.backup/
+*.backup
+*.bak
+*.old
+
+# Turborepo
+.turbo

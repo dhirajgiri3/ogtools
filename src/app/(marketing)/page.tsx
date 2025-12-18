@@ -1,4 +1,4 @@
-import '@/shared/styles/animations.css';
+
 import { Hero } from '@/modules/landing/components/hero';
 import { BeforeAfterSlider } from '@/modules/landing/components/sections';
 import { FeatureSteps } from '@/modules/landing/components/sections';

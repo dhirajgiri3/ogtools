@@ -524,18 +524,4 @@ Think: text message, not email.
 OUTPUT ONLY THE REPLY TEXT (no preamble, just the reply):`;
 }
 
-export function wrapWithSystemPrompt(userPrompt: string): string {
-    return `${userPrompt}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚨 FINAL CRITICAL REMINDERS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-1. Output ONLY the content requested (post/comment/reply)
-2. NO meta-commentary like "Here's what I created:"
-3. NO explanations or preambles
-4. NO disclaimers or "as an AI" statements
-5. Just the raw text that would appear on Reddit
-
-This is not practice. This is the real thing. Type naturally.`;
-}

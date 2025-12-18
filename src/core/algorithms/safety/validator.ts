@@ -12,18 +12,13 @@ import { calculateTextSimilarity, findRepeatedPhrases } from '@/shared/lib/utils
 import { getMinutesDifference, calculateTimingCV } from '../timing/utils';
 
 /**
- * Safety Validator (Layer 6)
+ * Safety Validator
  * 
  * Heuristic-based safety validation to prevent account bans.
- * Runs 5 safety checks on generated calendars.
- * 
- * NOTE: This is a configurable heuristic system, not absolute guarantees.
- * Account history is mocked for V1 demonstration.
+ * Runs safety checks on generated calendars.
  */
 
-// ============================================
-// MOCK ACCOUNT HISTORY GENERATION
-// ============================================
+
 
 /**
  * Create mock account histories for personas
@@ -43,13 +38,9 @@ export function createMockAccountHistories(personas: Persona[]): AccountHistory[
     }));
 }
 
-// ============================================
-// SAFETY CHECKS
-// ============================================
 
-/**
- * Check 1: Account Readiness (Mocked)
- */
+
+
 function checkAccountReadiness(
     accountHistories: AccountHistory[]
 ): CheckResult {
@@ -88,9 +79,7 @@ function checkAccountReadiness(
     };
 }
 
-/**
- * Check 2: Frequency Limits
- */
+
 function checkFrequencyLimits(
     scheduledConversations: ScheduledConversation[]
 ): CheckResult {
@@ -162,9 +151,7 @@ function checkFrequencyLimits(
     };
 }
 
-/**
- * Check 3: Timing Realism
- */
+
 function checkTimingRealism(
     scheduledConversations: ScheduledConversation[]
 ): CheckResult {
@@ -218,9 +205,7 @@ function checkTimingRealism(
     };
 }
 
-/**
- * Check 4: Collusion Detection
- */
+
 function checkCollusionPatterns(
     scheduledConversations: ScheduledConversation[]
 ): CheckResult {
@@ -269,9 +254,7 @@ function checkCollusionPatterns(
     };
 }
 
-/**
- * Check 5: Content Similarity
- */
+
 function checkContentSimilarity(
     scheduledConversations: ScheduledConversation[]
 ): CheckResult {
@@ -330,9 +313,7 @@ function checkContentSimilarity(
     };
 }
 
-// ============================================
-// MAIN VALIDATION FUNCTION
-// ============================================
+
 
 /**
  * Validate safety of conversation calendar

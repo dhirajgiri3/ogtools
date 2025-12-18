@@ -17,15 +17,13 @@ import { injectAuthenticity } from '../authenticity/engine';
 import { buildPostPrompt, buildCommentPrompt, buildReplyPrompt } from './prompt-builder';
 
 /**
- * Conversation Designer (Layer 2)
+ * Conversation Designer
  * 
  * Generates complete conversation threads using predefined arc templates.
- * Creates posts, top-level comments, and nested replies with realistic structure.
+ * Creates posts, top-level comments, and nested replies.
  */
 
-// ============================================
-// ARC TEMPLATES
-// ============================================
+
 
 export const ARC_TEMPLATES: ArcTemplate[] = [
     {
@@ -205,9 +203,7 @@ export const ARC_TEMPLATES: ArcTemplate[] = [
     }
 ];
 
-// ============================================
-// PERSONA SELECTION LOGIC
-// ============================================
+
 
 /**
  * Score persona for subreddit fit
@@ -323,9 +319,7 @@ export function selectPersonasForArc(
     return { poster, commenters };
 }
 
-// ============================================
-// CONTENT GENERATION FUNCTIONS
-// ============================================
+
 
 /**
  * Generate post content
