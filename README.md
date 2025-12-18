@@ -86,6 +86,13 @@ Five-dimensional scoring system:
 - **Export functionality**: JSON, CSV, and formatted calendar exports
 - **Demo mode**: Pre-loaded SlideForge example data
 
+### 🔒 **Security & Rate Limiting**
+- **API rate limiting**: 10 requests per hour per endpoint
+- **IP-based tracking**: Prevents abuse and ensures fair usage
+- **Automatic cleanup**: Expired entries cleaned every 5 minutes
+- **Detailed headers**: Rate limit status in every response
+- **Cost protection**: Prevents excessive OpenAI API usage
+
 ---
 
 ## 📖 Assignment Context
@@ -392,6 +399,44 @@ Re-run safety validation on edited conversations.
 }
 ```
 
+### Rate Limiting
+
+All generation endpoints (`/api/generate` and `/api/regenerate`) are rate limited to **10 requests per hour per client**.
+
+**Rate Limit Headers:**
+
+Every response includes these headers:
+```
+X-RateLimit-Limit: 10
+X-RateLimit-Remaining: 7
+X-RateLimit-Reset: 1734531000000
+```
+
+**Rate Limit Exceeded (429):**
+
+When the limit is exceeded, you'll receive:
+
+```json
+{
+  "error": "Rate limit exceeded",
+  "message": "You have exceeded the maximum of 10 generation requests per hour. Please try again in 45m 30s.",
+  "code": "RATE_LIMIT_EXCEEDED",
+  "retryAfter": 2730,
+  "resetTime": "2025-12-18T14:30:00.000Z"
+}
+```
+
+**Headers:**
+```
+HTTP/1.1 429 Too Many Requests
+X-RateLimit-Limit: 10
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1734531000000
+Retry-After: 2730
+```
+
+For detailed documentation, see [docs/RATE_LIMITING.md](docs/RATE_LIMITING.md).
+
 ---
 
 ## 🧪 Testing & QA
@@ -436,6 +481,27 @@ npm run test:api
 **Output:**
 - JSON results in `test-results/` directory
 - Console logs with quality and safety analysis
+
+### Rate Limit Testing
+
+```bash
+# Start dev server first
+npm run dev
+
+# In another terminal, test rate limiting
+npm run test:rate-limit
+```
+
+**What it tests:**
+- Sends 12 requests to `/api/generate`
+- Verifies first 10 succeed (200 OK)
+- Verifies requests 11-12 are blocked (429)
+- Displays rate limit headers for each request
+- Confirms retry-after timing
+
+**Expected behavior:**
+- Requests 1-10: ✅ Success with decreasing `X-RateLimit-Remaining`
+- Requests 11-12: ❌ Blocked with `429 Too Many Requests`
 
 ---
 

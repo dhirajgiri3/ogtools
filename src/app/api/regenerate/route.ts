@@ -10,6 +10,7 @@ import { injectAuthenticity } from '@/core/algorithms/authenticity/engine';
 import { predictQuality } from '@/core/algorithms/quality/predictor';
 import { generateSchedule, applyScheduleToConversation } from '@/core/algorithms/timing/engine';
 import { validateSafety } from '@/core/algorithms/safety/validator';
+import { regenerateRateLimiter, getClientIdentifier, formatResetTime } from '@/shared/lib/rate-limit';
 
 /**
  * POST /api/regenerate
@@ -18,6 +19,8 @@ import { validateSafety } from '@/core/algorithms/safety/validator';
  * 1. conversation: Regenerate a single conversation
  * 2. week: Regenerate entire week with same parameters
  * 3. week-modified: Regenerate week with modified parameters
+ * 
+ * Rate limited to 10 requests per hour per client.
  */
 
 interface RegenerateRequest {
@@ -39,6 +42,39 @@ interface RegenerateRequest {
 
 export async function POST(req: NextRequest) {
     try {
+        // Apply rate limiting
+        const clientId = getClientIdentifier(req);
+        const rateLimitResult = regenerateRateLimiter.check(clientId);
+
+        if (!rateLimitResult.allowed) {
+            const resetIn = formatResetTime(rateLimitResult.resetTime);
+            return NextResponse.json(
+                {
+                    error: 'Rate limit exceeded',
+                    message: `You have exceeded the maximum of 10 regeneration requests per hour. Please try again in ${resetIn}.`,
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000),
+                    resetTime: new Date(rateLimitResult.resetTime).toISOString(),
+                },
+                {
+                    status: 429,
+                    headers: {
+                        'X-RateLimit-Limit': '10',
+                        'X-RateLimit-Remaining': '0',
+                        'X-RateLimit-Reset': rateLimitResult.resetTime.toString(),
+                        'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString(),
+                    },
+                }
+            );
+        }
+
+        // Add rate limit headers for successful responses
+        const rateLimitHeaders = {
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': rateLimitResult.resetTime.toString(),
+        };
+
         const input: RegenerateRequest = await req.json();
 
         if (!process.env.OPENAI_API_KEY) {
@@ -51,11 +87,11 @@ export async function POST(req: NextRequest) {
         // Route to appropriate handler based on mode
         switch (input.mode) {
             case 'conversation':
-                return await regenerateSingleConversation(input);
+                return await regenerateSingleConversation(input, rateLimitHeaders);
             case 'week':
-                return await regenerateWeek(input);
+                return await regenerateWeek(input, rateLimitHeaders);
             case 'week-modified':
-                return await regenerateWeekWithModifications(input);
+                return await regenerateWeekWithModifications(input, rateLimitHeaders);
             default:
                 return NextResponse.json(
                     { error: 'Invalid mode. Use: conversation, week, or week-modified' },
@@ -74,7 +110,10 @@ export async function POST(req: NextRequest) {
 /**
  * Mode 1: Regenerate a single conversation
  */
-async function regenerateSingleConversation(input: RegenerateRequest): Promise<NextResponse> {
+async function regenerateSingleConversation(
+    input: RegenerateRequest,
+    rateLimitHeaders: Record<string, string>
+): Promise<NextResponse> {
     if (!input.conversationId || !input.context.currentWeek) {
         return NextResponse.json(
             { error: 'Missing conversationId or currentWeek in context' },
@@ -214,13 +253,18 @@ async function regenerateSingleConversation(input: RegenerateRequest): Promise<N
         replyTimings: originalConv.replyTimings,
     };
 
-    return NextResponse.json({ scheduled, conversation: bestConversation });
+    return NextResponse.json({ scheduled, conversation: bestConversation }, {
+        headers: rateLimitHeaders,
+    });
 }
 
 /**
  * Mode 2: Regenerate entire week with same parameters
  */
-async function regenerateWeek(input: RegenerateRequest): Promise<NextResponse> {
+async function regenerateWeek(
+    input: RegenerateRequest,
+    rateLimitHeaders: Record<string, string>
+): Promise<NextResponse> {
     if (!input.context.currentWeek) {
         return NextResponse.json(
             { error: 'Missing currentWeek in context' },
@@ -347,13 +391,18 @@ async function regenerateWeek(input: RegenerateRequest): Promise<NextResponse> {
         }
     };
 
-    return NextResponse.json({ calendar: newCalendar });
+    return NextResponse.json({ calendar: newCalendar }, {
+        headers: rateLimitHeaders,
+    });
 }
 
 /**
  * Mode 3: Regenerate week with modified parameters
  */
-async function regenerateWeekWithModifications(input: RegenerateRequest): Promise<NextResponse> {
+async function regenerateWeekWithModifications(
+    input: RegenerateRequest,
+    rateLimitHeaders: Record<string, string>
+): Promise<NextResponse> {
     // This mode would be implemented similar to regenerateWeek
     // but with modified parameters from input.modifiedParams
     // For now, return not implemented

@@ -1,4 +1,4 @@
-import { WeekCalendar, Persona, SubredditContext } from '@/core/types';
+import { WeekCalendar, Persona } from '@/core/types';
 
 /**
  * Week Context Utility

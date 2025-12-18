@@ -17,15 +17,50 @@ import {
 } from '@/core/errors';
 import { extractWeekContext, selectDiverseSubreddit } from '@/core/algorithms/timing/week-context';
 import { extractCompanyActivities } from '@/core/algorithms/company/activity-extractor';
+import { generateRateLimiter, getClientIdentifier, formatResetTime } from '@/shared/lib/rate-limit';
 
 /**
  * POST /api/generate
  * 
  * Main generation endpoint for creating Reddit content calendars.
+ * Rate limited to 10 requests per hour per client.
  */
 
 export async function POST(req: NextRequest) {
     try {
+        // Apply rate limiting
+        const clientId = getClientIdentifier(req);
+        const rateLimitResult = generateRateLimiter.check(clientId);
+
+        if (!rateLimitResult.allowed) {
+            const resetIn = formatResetTime(rateLimitResult.resetTime);
+            return NextResponse.json(
+                {
+                    error: 'Rate limit exceeded',
+                    message: `You have exceeded the maximum of 10 generation requests per hour. Please try again in ${resetIn}.`,
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000),
+                    resetTime: new Date(rateLimitResult.resetTime).toISOString(),
+                },
+                {
+                    status: 429,
+                    headers: {
+                        'X-RateLimit-Limit': '10',
+                        'X-RateLimit-Remaining': '0',
+                        'X-RateLimit-Reset': rateLimitResult.resetTime.toString(),
+                        'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString(),
+                    },
+                }
+            );
+        }
+
+        // Add rate limit headers to successful responses
+        const rateLimitHeaders = {
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': rateLimitResult.resetTime.toString(),
+        };
+
         // Parse request body
         const input: GenerationInput = await req.json();
 
@@ -139,27 +174,51 @@ export async function POST(req: NextRequest) {
         console.log(`📋 Personas received (${input.personas.length}):`, input.personas.map(p => p.id));
         const startTime = Date.now();
 
-        // Pre-assign personas for each conversation to ensure proper rotation
+        // Initialize simple usage tracking
+        const {
+            createUsageTracker,
+            selectBalancedPersona,
+            selectBalancedSubreddit,
+            trackUsage,
+            getDistributionMetrics
+        } = await import('@/core/algorithms/timing/engine');
 
-        const personaAssignments: string[] = [];
-        for (let i = 0; i < input.postsPerWeek; i++) {
-            const personaIndex = i % input.personas.length;
-            personaAssignments.push(input.personas[personaIndex].id);
-        }
-        console.log(`🎭 Persona assignments for ${input.postsPerWeek} posts:`, personaAssignments);
+        const usage = createUsageTracker();
+
+        // Track recently used
+        const recentPersonas: string[] = [];
+        const recentSubreddits: string[] = [];
 
         // Create all generation promises with quality-gated regeneration
         const generationPromises = Array.from({ length: input.postsPerWeek }, async (_, i) => {
             const arcType = arcTypes[i % arcTypes.length];
 
-            // Use diverse subreddit selection if we have context
-            const subreddit = weekContext
-                ? selectDiverseSubreddit(input.subreddits, weekContext)
-                : input.subreddits[i % input.subreddits.length];
+            // Select using simple least-used logic
+            const selectedPersona = selectBalancedPersona(
+                input.personas,
+                usage,
+                i,
+                recentPersonas.slice(-2)
+            );
 
-            // Get pre-assigned persona for this conversation
-            const assignedPersonaId = personaAssignments[i];
-            const assignedPersona = input.personas.find(p => p.id === assignedPersonaId)!;
+            const subreddit = selectBalancedSubreddit(
+                input.subreddits,
+                usage,
+                selectedPersona.id,
+                recentSubreddits.slice(-2)
+            );
+
+            // Track usage
+            trackUsage(usage, selectedPersona.id, subreddit, i);
+
+            // Update recent usage
+            recentPersonas.push(selectedPersona.id);
+            recentSubreddits.push(subreddit);
+            if (recentPersonas.length > 3) recentPersonas.shift();
+            if (recentSubreddits.length > 3) recentSubreddits.shift();
+
+            console.log(`📝 Post ${i + 1}: ${selectedPersona.name} → r/${subreddit} (${arcType})`);
+
 
             let bestConversation: ConversationThread | null = null;
             let bestScore = 0;
@@ -167,10 +226,10 @@ export async function POST(req: NextRequest) {
             // Try up to MAX_REGENERATION_ATTEMPTS times to get high quality
             for (let attempt = 0; attempt <= MAX_REGENERATION_ATTEMPTS; attempt++) {
                 try {
-                    // Generate base conversation with assigned persona as poster
+                    // Generate base conversation with selected persona as poster
                     const baseConversation = await generateConversationWithPersona(
                         arcType,
-                        assignedPersona,
+                        selectedPersona,
                         input.personas,
                         input.company,
                         subreddit,
@@ -303,6 +362,16 @@ export async function POST(req: NextRequest) {
             personaUsageObj[personaId] = (personaUsageObj[personaId] || 0) + 1;
         });
 
+        // Get simple distribution metrics
+        const distributionMetrics = getDistributionMetrics(usage, conversations.length);
+
+        console.log(`📊 Distribution metrics:`, {
+            diversityScore: distributionMetrics.diversityScore.toFixed(2),
+            combinationDiversity: distributionMetrics.combinationDiversity.toFixed(2),
+            personaBalance: distributionMetrics.personaBalance,
+            subredditBalance: distributionMetrics.subredditBalance
+        });
+
         // Build response
         const calendar: WeekCalendar = {
             weekNumber: weekNumber,
@@ -312,12 +381,15 @@ export async function POST(req: NextRequest) {
             metadata: {
                 generatedAt: new Date(),
                 totalConversations: conversations.length,
-                subredditDistribution: subredditDistObj as any, // Cast to match type if it expects Map
-                personaUsage: personaUsageObj as any
+                subredditDistribution: subredditDistObj as any,
+                personaUsage: personaUsageObj as any,
+                distributionMetrics
             }
         };
 
-        return NextResponse.json(calendar);
+        return NextResponse.json(calendar, {
+            headers: rateLimitHeaders,
+        });
 
     } catch (error) {
         console.error('=== GENERATION ERROR ===');

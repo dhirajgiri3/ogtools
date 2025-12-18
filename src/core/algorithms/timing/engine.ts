@@ -3,7 +3,8 @@ import {
     ScheduledConversation,
     Persona,
     PersonaTiming,
-    TimeWindow
+    TimeWindow,
+    DistributionMetrics
 } from '@/core/types';
 import { getPersonaTiming, isActiveHour, isPeakHour, getRandomResponseDelay } from '@/core/data/personas/timing';
 import {
@@ -17,6 +18,116 @@ import {
     getStartOfWeek,
     getRandomDateInWeek
 } from './utils';
+
+// ============================================
+// SIMPLE DISTRIBUTION LOGIC
+// ============================================
+
+interface SimpleUsage {
+    personas: Record<string, number>;
+    subreddits: Record<string, number>;
+    combinations: Record<string, number>;
+    lastUsedIndex: Record<string, number>;
+}
+
+/**
+ * Select least-used persona (simple round-robin with anti-clustering)
+ */
+export function selectBalancedPersona(
+    personas: Persona[],
+    usage: SimpleUsage,
+    currentIndex: number,
+    recentlyUsed: string[]
+): Persona {
+    // Filter out recently used (last 2)
+    const available = personas.filter(p => !recentlyUsed.includes(p.id));
+    if (available.length === 0) return personas[currentIndex % personas.length];
+
+    // Pick the one with least usage
+    return available.reduce((least, current) => {
+        const leastCount = usage.personas[least.id] || 0;
+        const currentCount = usage.personas[current.id] || 0;
+        return currentCount < leastCount ? current : least;
+    });
+}
+
+/**
+ * Select least-used subreddit (avoiding same combo)
+ */
+export function selectBalancedSubreddit(
+    subreddits: string[],
+    usage: SimpleUsage,
+    personaId: string,
+    recentlyUsed: string[]
+): string {
+    // Filter out recently used and overused combos
+    const available = subreddits.filter(sub => {
+        if (recentlyUsed.includes(sub)) return false;
+        const combo = `${personaId}:${sub}`;
+        return (usage.combinations[combo] || 0) < 2; // Max 2 times per combo
+    });
+    if (available.length === 0) return subreddits[0];
+
+    // Pick least used
+    return available.reduce((least, current) => {
+        const leastCount = usage.subreddits[least] || 0;
+        const currentCount = usage.subreddits[current] || 0;
+        return currentCount < leastCount ? current : least;
+    });
+}
+
+/**
+ * Track usage (simple increment)
+ */
+export function trackUsage(
+    usage: SimpleUsage,
+    personaId: string,
+    subreddit: string,
+    index: number
+): void {
+    usage.personas[personaId] = (usage.personas[personaId] || 0) + 1;
+    usage.subreddits[subreddit] = (usage.subreddits[subreddit] || 0) + 1;
+    const combo = `${personaId}:${subreddit}`;
+    usage.combinations[combo] = (usage.combinations[combo] || 0) + 1;
+    usage.lastUsedIndex[personaId] = index;
+    usage.lastUsedIndex[subreddit] = index;
+}
+
+/**
+ * Get simple distribution metrics
+ */
+export function getDistributionMetrics(usage: SimpleUsage, total: number): DistributionMetrics {
+    // Simple diversity: how many unique combos / total posts
+    const combinationDiversity = Object.keys(usage.combinations).length / Math.max(1, total);
+
+    // Simple balance check: variance from even distribution
+    const personaCount = Object.keys(usage.personas).length;
+    const expectedPerPersona = total / personaCount;
+    let personaVariance = 0;
+    Object.values(usage.personas).forEach(count => {
+        personaVariance += Math.pow(count - expectedPerPersona, 2);
+    });
+    const diversityScore = 1 - Math.min(1, personaVariance / (total * total));
+
+    return {
+        personaBalance: { ...usage.personas },
+        subredditBalance: { ...usage.subreddits },
+        diversityScore,
+        combinationDiversity
+    };
+}
+
+/**
+ * Create empty usage tracker
+ */
+export function createUsageTracker(): SimpleUsage {
+    return {
+        personas: {},
+        subreddits: {},
+        combinations: {},
+        lastUsedIndex: {}
+    };
+}
 
 // ============================================
 // POST TIME SELECTION

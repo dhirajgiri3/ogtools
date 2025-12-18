@@ -10,7 +10,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:api": "node test-api.js"
+    "test:api": "node test-api.js",
+    "test:rate-limit": "node test-rate-limit.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

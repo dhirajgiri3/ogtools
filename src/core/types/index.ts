@@ -162,6 +162,17 @@ export interface SafetyReport {
 }
 
 // ============================================
+// DISTRIBUTION & BALANCING STRUCTURES
+// ============================================
+
+export interface DistributionMetrics {
+    personaBalance: Record<string, number>;
+    subredditBalance: Record<string, number>;
+    diversityScore: number;
+    combinationDiversity: number;
+}
+
+// ============================================
 // TIMING & SCHEDULING STRUCTURES
 // ============================================
 
@@ -229,6 +240,7 @@ export interface WeekCalendar {
         totalConversations: number;
         subredditDistribution: Record<string, number> | Map<string, number>;
         personaUsage: Record<string, number> | Map<string, number>;
+        distributionMetrics?: DistributionMetrics;
     };
 }
 
