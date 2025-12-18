@@ -12,10 +12,17 @@ import { validateSafety } from '@/core/algorithms/safety/validator';
 export async function POST(req: NextRequest) {
     try {
         // Parse request body
-        const { conversations, personas } = await req.json() as {
-            conversations: ScheduledConversation[];
-            personas: Persona[];
-        };
+        const body = await req.json();
+
+        // Convert date strings back to Date objects
+        const conversations = (body.conversations || []).map((conv: any) => ({
+            ...conv,
+            scheduledTime: new Date(conv.scheduledTime),
+            commentTimings: (conv.commentTimings || []).map((t: string) => new Date(t)),
+            replyTimings: (conv.replyTimings || []).map((t: string) => new Date(t))
+        })) as ScheduledConversation[];
+
+        const personas = body.personas as Persona[];
 
         // Validate input
         if (!conversations || !Array.isArray(conversations)) {

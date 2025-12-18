@@ -1,0 +1,418 @@
+{
+  "mode": "conversation",
+  "conversationId": "thread_1766057261449_9afm57hfz",
+  "context": {
+    "currentWeek": {
+      "weekNumber": 1,
+      "conversations": [
+        {
+          "conversation": {
+            "id": "thread_1766057261449_9afm57hfz",
+            "post": {
+              "id": "post_1766057256864_lecq15ufy",
+              "persona": {
+                "id": "dev_lead",
+                "name": "Sarah",
+                "role": "Tech Lead",
+                "backstory": "Experienced dev lead",
+                "vocabulary": {
+                  "characteristic": [],
+                  "avoid": [],
+                  "formality": 0.5
+                },
+                "communicationStyle": {
+                  "default": "professional",
+                  "acceptable": []
+                },
+                "redditPattern": "always_online",
+                "experienceLevel": "high",
+                "interests": [
+                  "coding",
+                  "leadership"
+                ]
+              },
+              "subreddit": "r/programming",
+              "content": "been wrestling with sprint planning for like 4 hours now and it still feels all off. deadlines are creeping up and i’m just stressed out, honestly. i’ve done so many revisions taht my brain is fried 😩 anyone else hit this wall or am i teh only one drowning in chaos",
+              "emotion": "frustration",
+              "keywords": [
+                "agile",
+                "scrum",
+                "kanban"
+              ],
+              "scheduledTime": "2025-12-22T05:12:03.000Z"
+            },
+            "topLevelComments": [
+              {
+                "id": "comment_1766057258309_wetwnqu1m",
+                "persona": {
+                  "id": "dev_lead",
+                  "name": "Sarah",
+                  "role": "Tech Lead",
+                  "backstory": "Experienced dev lead",
+                  "vocabulary": {
+                    "characteristic": [],
+                    "avoid": [],
+                    "formality": 0.5
+                  },
+                  "communicationStyle": {
+                    "default": "professional",
+                    "acceptable": []
+                  },
+                  "redditPattern": "always_online",
+                  "experienceLevel": "high",
+                  "interests": [
+                    "coding",
+                    "leadership"
+                  ]
+                },
+                "content": "ugh i totally feel this! I've spent way too many nights just staring at my screen feeling like I'm getting nowhere. it’s so hard when deadlines are breathing down your neck 😩 you're def not alone in this chaos, hang in there!",
+                "scheduledTime": "2025-12-22T05:54:03.000Z",
+                "replyTo": "post",
+                "purpose": "validate_problem",
+                "productMention": false
+              },
+              {
+                "id": "comment_1766057257651_fr8v7ot5h",
+                "persona": {
+                  "id": "dev_lead",
+                  "name": "Sarah",
+                  "role": "Tech Lead",
+                  "backstory": "Experienced dev lead",
+                  "vocabulary": {
+                    "characteristic": [],
+                    "avoid": [],
+                    "formality": 0.5
+                  },
+                  "communicationStyle": {
+                    "default": "professional",
+                    "acceptable": []
+                  },
+                  "redditPattern": "always_online",
+                  "experienceLevel": "high",
+                  "interests": [
+                    "coding",
+                    "leadership"
+                  ]
+                },
+                "content": "\"how many people are on your team? that could really change the dynamics of sprint planning\" tbh",
+                "scheduledTime": "2025-12-22T06:36:03.000Z",
+                "replyTo": "post",
+                "purpose": "ask_clarifying_question",
+                "productMention": false
+              },
+              {
+                "id": "comment_1766057259291_tbxr60k7q",
+                "persona": {
+                  "id": "dev_lead",
+                  "name": "Sarah",
+                  "role": "Tech Lead",
+                  "backstory": "Experienced dev lead",
+                  "vocabulary": {
+                    "characteristic": [],
+                    "avoid": [],
+                    "formality": 0.5
+                  },
+                  "communicationStyle": {
+                    "default": "professional",
+                    "acceptable": []
+                  },
+                  "redditPattern": "always_online",
+                  "experienceLevel": "high",
+                  "interests": [
+                    "coding",
+                    "leadership"
+                  ]
+                },
+                "content": "i totally get that! when i’m stuck, i try to break things into smaller tasks and tackle them one by one. it’s not perfect but focusing on just 1 thing at a time helps clear the fog a bit. gives me a sense of progress too! hang in there ❤️",
+                "scheduledTime": "2025-12-22T08:43:03.000Z",
+                "replyTo": "post",
+                "purpose": "suggest_approach",
+                "productMention": false
+              },
+              {
+                "id": "comment_1766057259315_myw9es6yf",
+                "persona": {
+                  "id": "dev_lead",
+                  "name": "Sarah",
+                  "role": "Tech Lead",
+                  "backstory": "Experienced dev lead",
+                  "vocabulary": {
+                    "characteristic": [],
+                    "avoid": [],
+                    "formality": 0.5
+                  },
+                  "communicationStyle": {
+                    "default": "professional",
+                    "acceptable": []
+                  },
+                  "redditPattern": "always_online",
+                  "experienceLevel": "high",
+                  "interests": [
+                    "coding",
+                    "leadership"
+                  ]
+                },
+                "content": "for real, i’ve been in that spot before 😩 one thing that helped me was using TechFlow. it automates task assignment which takes SO much off my plate! still have to tweak sometimes but honestly it cuts the chaos by a lot. you’re definitely not alone in this! hang in there! tbh",
+                "scheduledTime": "2025-12-22T09:58:03.000Z",
+                "replyTo": "post",
+                "purpose": "tool_mention",
+                "productMention": true
+              }
+            ],
+            "replies": [
+              {
+                "id": "reply_1766057260812_36x9y3mtn",
+                "persona": {
+                  "id": "dev_lead",
+                  "name": "Sarah",
+                  "role": "Tech Lead",
+                  "backstory": "Experienced dev lead",
+                  "vocabulary": {
+                    "characteristic": [],
+                    "avoid": [],
+                    "formality": 0.5
+                  },
+                  "communicationStyle": {
+                    "default": "professional",
+                    "acceptable": []
+                  },
+                  "redditPattern": "always_online",
+                  "experienceLevel": "high",
+                  "interests": [
+                    "coding",
+                    "leadership"
+                  ]
+                },
+                "content": "thank you! do you have any tips for pushing through? 🥴",
+                "scheduledTime": "2025-12-22T06:55:03.000Z",
+                "parentCommentId": "comment_1766057258309_wetwnqu1m",
+                "replyType": "op_followup"
+              },
+              {
+                "id": "reply_1766057260743_l834ak6qk",
+                "persona": {
+                  "id": "dev_lead",
+                  "name": "Sarah",
+                  "role": "Tech Lead",
+                  "backstory": "Experienced dev lead",
+                  "vocabulary": {
+                    "characteristic": [],
+                    "avoid": [],
+                    "formality": 0.5
+                  },
+                  "communicationStyle": {
+                    "default": "professional",
+                    "acceptable": []
+                  },
+                  "redditPattern": "always_online",
+                  "experienceLevel": "high",
+                  "interests": [
+                    "coding",
+                    "leadership"
+                  ]
+                },
+                "content": "yeah totally, we're a team of 5",
+                "scheduledTime": "2025-12-22T07:52:03.000Z",
+                "parentCommentId": "comment_1766057257651_fr8v7ot5h",
+                "replyType": "op_followup"
+              },
+              {
+                "id": "reply_1766057261016_tul21lnst",
+                "persona": {
+                  "id": "dev_lead",
+                  "name": "Sarah",
+                  "role": "Tech Lead",
+                  "backstory": "Experienced dev lead",
+                  "vocabulary": {
+                    "characteristic": [],
+                    "avoid": [],
+                    "formality": 0.5
+                  },
+                  "communicationStyle": {
+                    "default": "professional",
+                    "acceptable": []
+                  },
+                  "redditPattern": "always_online",
+                  "experienceLevel": "high",
+                  "interests": [
+                    "coding",
+                    "leadership"
+                  ]
+                },
+                "content": "totally! what tasks do you usually start with? 😊",
+                "scheduledTime": "2025-12-22T10:32:03.000Z",
+                "parentCommentId": "comment_1766057259291_tbxr60k7q",
+                "replyType": "op_followup"
+              },
+              {
+                "id": "reply_1766057261449_dv7qon8xu",
+                "persona": {
+                  "id": "dev_lead",
+                  "name": "Sarah",
+                  "role": "Tech Lead",
+                  "backstory": "Experienced dev lead",
+                  "vocabulary": {
+                    "characteristic": [],
+                    "avoid": [],
+                    "formality": 0.5
+                  },
+                  "communicationStyle": {
+                    "default": "professional",
+                    "acceptable": []
+                  },
+                  "redditPattern": "always_online",
+                  "experienceLevel": "high",
+                  "interests": [
+                    "coding",
+                    "leadership"
+                  ]
+                },
+                "content": "ugh yes, that sounds so helpful! def gonna check it out 🙌 tbh",
+                "scheduledTime": "2025-12-22T11:16:03.000Z",
+                "parentCommentId": "comment_1766057259315_myw9es6yf",
+                "replyType": "commenter_elaboration"
+              }
+            ],
+            "arcType": "discovery",
+            "subreddit": "r/programming",
+            "qualityScore": {
+              "overall": 87,
+              "dimensions": {
+                "subredditRelevance": 25,
+                "problemSpecificity": 18,
+                "authenticity": 19,
+                "valueFirst": 20,
+                "engagementDesign": 5
+              },
+              "grade": "good",
+              "issues": [
+                {
+                  "type": "no_question",
+                  "severity": "low",
+                  "message": "Post doesn't ask for help",
+                  "suggestion": "End with a question to invite responses"
+                }
+              ],
+              "strengths": [
+                {
+                  "type": "company_relevance",
+                  "message": "Content is highly relevant to company domain",
+                  "example": "Matched keyword: \"AI\""
+                },
+                {
+                  "type": "formality_match",
+                  "message": "Writing style matches subreddit formality",
+                  "example": "Tone is appropriate"
+                },
+                {
+                  "type": "specific_details",
+                  "message": "Post includes concrete details",
+                  "example": "Has numbers, timeframes, or specific context"
+                },
+                {
+                  "type": "specific_situation",
+                  "message": "Describes a specific personal situation",
+                  "example": "Provides context about their scenario"
+                },
+                {
+                  "type": "problem_focused",
+                  "message": "Focuses on problem, not tool-seeking",
+                  "example": "Not explicitly asking for recommendations"
+                },
+                {
+                  "type": "style_variance",
+                  "message": "Good variance in writing styles",
+                  "example": "Different commenters sound distinct"
+                },
+                {
+                  "type": "natural_language",
+                  "message": "Includes natural language patterns",
+                  "example": "Has casual markers or minor imperfections"
+                },
+                {
+                  "type": "value_first_post",
+                  "message": "Post focuses on problem, not product",
+                  "example": "No product mention in initial post"
+                },
+                {
+                  "type": "value_before_product",
+                  "message": "Helpful comments before product mention",
+                  "example": "Product mentioned in comment 4"
+                },
+                {
+                  "type": "natural_mention",
+                  "message": "Product mentioned naturally",
+                  "example": "No promotional language detected"
+                },
+                {
+                  "type": "op_engagement",
+                  "message": "OP actively engages with comments",
+                  "example": "3 OP replies"
+                }
+              ],
+              "suggestions": []
+            }
+          },
+          "scheduledTime": "2025-12-22T05:12:03.000Z",
+          "commentTimings": [
+            "2025-12-22T05:54:03.000Z",
+            "2025-12-22T06:36:03.000Z",
+            "2025-12-22T08:43:03.000Z",
+            "2025-12-22T09:58:03.000Z"
+          ],
+          "replyTimings": [
+            "2025-12-22T06:55:03.000Z",
+            "2025-12-22T07:52:03.000Z",
+            "2025-12-22T10:32:03.000Z",
+            "2025-12-22T11:16:03.000Z"
+          ]
+        }
+      ],
+      "averageQuality": 87,
+      "safetyReport": {
+        "passed": true,
+        "overallRisk": "low",
+        "checks": {
+          "accountReadiness": {
+            "passed": true,
+            "score": 1,
+            "details": "All accounts meet readiness requirements"
+          },
+          "frequencyLimits": {
+            "passed": true,
+            "score": 1,
+            "details": "All frequency limits satisfied"
+          },
+          "timingRealism": {
+            "passed": true,
+            "score": 1,
+            "details": "Timing patterns appear realistic"
+          },
+          "collusionPatterns": {
+            "passed": true,
+            "score": 1,
+            "details": "No suspicious collusion patterns detected"
+          },
+          "contentSimilarity": {
+            "passed": true,
+            "score": 1,
+            "details": "Content shows good variation"
+          }
+        },
+        "violations": [],
+        "warnings": [],
+        "recommendations": []
+      },
+      "metadata": {
+        "generatedAt": "2025-12-18T11:27:41.460Z",
+        "totalConversations": 1,
+        "subredditDistribution": {
+          "r/programming": 1
+        },
+        "personaUsage": {
+          "dev_lead": 1
+        }
+      }
+    }
+  }
+}
