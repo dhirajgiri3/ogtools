@@ -464,7 +464,7 @@ function ConversationCard({ scheduled, isSelected, isDragging, isHovered, onClic
 
     return (
         <div className="relative">
-            <motion.button
+            <motion.div
                 layout
                 draggable
                 onDragStart={onDragStart}
@@ -474,11 +474,17 @@ function ConversationCard({ scheduled, isSelected, isDragging, isHovered, onClic
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{
                     opacity: isDragging ? 0.4 : 1,
-                    scale: isDragging ? 0.95 : 1
+                    scale: isDragging ? 0.95 : 1,
+                    y: isHovered && !isSelected ? -2 : 0
                 }}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{
+                    scale: 1.02,
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    cursor: 'grab'
+                }}
                 whileTap={{ scale: 0.98 }}
-                className={`w-full text-left p-3 rounded-xl text-xs transition-all cursor-grab active:cursor-grabbing ${isSelected
+                style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+                className={`w-full text-left p-3 rounded-xl text-xs transition-all select-none hover:shadow-md ${isSelected
                     ? 'bg-gradient-to-br from-blue-500 to-violet-500 text-white'
                     : 'bg-white border border-zinc-200 hover:border-blue-300'
                     }`}
@@ -510,7 +516,7 @@ function ConversationCard({ scheduled, isSelected, isDragging, isHovered, onClic
                         <span>{commentCount + replyCount}</span>
                     </div>
                 </div>
-            </motion.button>
+            </motion.div>
 
             {/* Tooltip on Right */}
             <AnimatePresence>
@@ -561,9 +567,9 @@ function ConversationCard({ scheduled, isSelected, isDragging, isHovered, onClic
 
                         <div className="mt-3 pt-3 border-t border-zinc-200 text-center">
                             <Badge className={`text-xs px-3 py-1 ${conv.qualityScore.grade === 'excellent' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white' :
-                                    conv.qualityScore.grade === 'good' ? 'bg-zinc-900 text-white' :
-                                        conv.qualityScore.grade === 'needs_improvement' ? 'bg-amber-100 text-amber-700' :
-                                            'bg-red-100 text-red-700'
+                                conv.qualityScore.grade === 'good' ? 'bg-zinc-900 text-white' :
+                                    conv.qualityScore.grade === 'needs_improvement' ? 'bg-amber-100 text-amber-700' :
+                                        'bg-red-100 text-red-700'
                                 }`}>
                                 {conv.qualityScore.grade?.replace('_', ' ')}
                             </Badge>
