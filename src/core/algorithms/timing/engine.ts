@@ -18,20 +18,10 @@ import {
     getRandomDateInWeek
 } from './utils';
 
-/**
- * Timing Engine (Layer 5)
- * 
- * Generates realistic posting schedules based on persona activity patterns.
- * Ensures posts/comments/replies occur during active hours with natural variance.
- */
-
 // ============================================
 // POST TIME SELECTION
 // ============================================
 
-/**
- * Select realistic post time for persona
- */
 export function selectRealisticPostTime(
     persona: Persona,
     weekStart: Date

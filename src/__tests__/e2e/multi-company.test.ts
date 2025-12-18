@@ -65,7 +65,6 @@ describe('Multi-Company Integration Tests', () => {
             'Identify power users automatically',
             'Integrate with your existing stack'
         ],
-        icp: ['SaaS founders', 'Product managers', 'Growth teams'],
         keywords: ['analytics tool', 'user tracking', 'churn prediction', 'product analytics']
     };
 
@@ -79,7 +78,6 @@ describe('Multi-Company Integration Tests', () => {
             'Detect security vulnerabilities',
             'Team collaboration features'
         ],
-        icp: ['Engineering teams', 'Tech leads', 'DevOps engineers'],
         keywords: ['code review tool', 'automated documentation', 'code quality', 'developer productivity']
     };
 
@@ -93,7 +91,6 @@ describe('Multi-Company Integration Tests', () => {
             'A/B testing automation',
             'Multi-channel campaign management'
         ],
-        icp: ['Marketing teams', 'Growth marketers', 'CMOs'],
         keywords: ['marketing automation', 'email campaigns', 'lead generation', 'growth hacking']
     };
 
@@ -107,7 +104,6 @@ describe('Multi-Company Integration Tests', () => {
             'Design system management',
             'Export to all major formats'
         ],
-        icp: ['Design teams', 'UX designers', 'Creative directors'],
         keywords: ['design tool', 'collaborative design', 'UI design', 'design workflow']
     };
 
@@ -122,7 +118,7 @@ describe('Multi-Company Integration Tests', () => {
             );
 
             // Should instruct NOT to mention product in post (per requirements)
-            expect(prompt).toContain('DO NOT mention "DataPulse"');
+            expect(prompt).toContain('NO solutions or tool mentions');
 
             // Should include target query from keywords for SEO
             const hasKeyword = analyticsCompany.keywords.some(kw =>
@@ -131,9 +127,10 @@ describe('Multi-Company Integration Tests', () => {
             expect(hasKeyword).toBe(true);
 
             // Should maintain standard requirements
-            expect(prompt).toContain('CRITICAL REQUIREMENTS');
-            expect(prompt).toContain('specific number');
-            expect(prompt).toContain('TARGET SEARCH QUERY');
+            // Should maintain standard requirements
+            expect(prompt).toContain('YOUR POST SHOULD:');
+            expect(prompt).toContain('SPECIFIC NUMBER');
+            expect(prompt).toContain('searching');
         });
 
         it('should generate posts for CodeSync (Developer Tools)', () => {
@@ -145,7 +142,7 @@ describe('Multi-Company Integration Tests', () => {
                 devToolCompany.keywords
             );
 
-            expect(prompt).toContain('DO NOT mention "CodeSync"');
+            expect(prompt).toContain('NO solutions or tool mentions');
 
             const hasKeyword = devToolCompany.keywords.some(kw =>
                 prompt.includes(kw)
@@ -162,7 +159,7 @@ describe('Multi-Company Integration Tests', () => {
                 marketingCompany.keywords
             );
 
-            expect(prompt).toContain('DO NOT mention "GrowthBot"');
+            expect(prompt).toContain('NO solutions or tool mentions');
 
             const hasKeyword = marketingCompany.keywords.some(kw =>
                 prompt.includes(kw)
@@ -179,7 +176,7 @@ describe('Multi-Company Integration Tests', () => {
                 designCompany.keywords
             );
 
-            expect(prompt).toContain('DO NOT mention "PixelForge"');
+            expect(prompt).toContain('NO solutions or tool mentions');
 
             const hasKeyword = designCompany.keywords.some(kw =>
                 prompt.includes(kw)
@@ -210,8 +207,8 @@ describe('Multi-Company Integration Tests', () => {
             expect(hasValueProp).toBe(true);
 
             // Should have natural framing instructions
-            expect(prompt).toContain('personal experience');
-            expect(prompt).toContain('NEVER say:');
+            expect(prompt).toContain('PERSONAL EXPERIENCE');
+            expect(prompt).toContain('NEVER SAY:');
         });
 
         it('should mention CodeSync naturally in comments', () => {
@@ -289,21 +286,7 @@ describe('Multi-Company Integration Tests', () => {
         });
     });
 
-    describe('ICP Targeting', () => {
-        it('should include ICP information in company context', () => {
-            // All companies should have valid ICPs
-            expect(analyticsCompany.icp.length).toBeGreaterThan(0);
-            expect(devToolCompany.icp.length).toBeGreaterThan(0);
-            expect(marketingCompany.icp.length).toBeGreaterThan(0);
-            expect(designCompany.icp.length).toBeGreaterThan(0);
 
-            // ICPs should be specific
-            expect(analyticsCompany.icp).toContain('SaaS founders');
-            expect(devToolCompany.icp).toContain('Engineering teams');
-            expect(marketingCompany.icp).toContain('Marketing teams');
-            expect(designCompany.icp).toContain('Design teams');
-        });
-    });
 
     describe('Keyword Diversity', () => {
         it('should have unique keywords per company vertical', () => {

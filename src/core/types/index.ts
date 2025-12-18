@@ -6,8 +6,8 @@ export interface CompanyContext {
     name: string;                          // "SlideForge"
     product: string;                       // "AI-powered presentation tool"
     valuePropositions: string[];           // ["Automates layouts", "Saves time"]
-    icp: string[];                         // ["Startup operators", "Consultants"]
     keywords: string[];                    // ["presentation tool", "slide deck"]
+    activities?: string[];                 // ["creating pitch decks", "fixing slide layouts"]
 }
 
 export interface PersonaVocabulary {

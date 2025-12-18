@@ -34,7 +34,7 @@ export const CASUAL_FRUSTRATION_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'casual',
         emotion: 'frustration',
-        content: "spent like 3 hours yesterday trying to get my slides to not look terrible and honestly idk if it even worked. client meeting this afternoon and im lowkey stressed lol. anyone else just bad at design or is it just me",
+        content: "spent like 3 hours yesterday trying to get this working and honestly idk if it even worked. client meeting this afternoon and im lowkey stressed lol. anyone else just bad at this or is it just me",
         features: [
             "lowercase i",
             "no ending punctuation",
@@ -49,7 +49,7 @@ export const CASUAL_FRUSTRATION_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'casual',
         emotion: 'frustration',
-        content: "5th revision of this deck and honestly just wanna delete everything lol. why does making slides take longer than the actual work",
+        content: "5th revision of this and honestly just wanna delete everything lol. why does this take longer than the actual work",
         features: [
             "specific number (5th)",
             "lowercase start",
@@ -64,11 +64,11 @@ export const CASUAL_FRUSTRATION_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'casual',
         emotion: 'frustration',
-        content: "had a client call yesterday and realized my slides looked terrible. spent 6 hours on them. not great. anyone have tips for making presentations not look like garbage quickly?",
+        content: "had a client call yesterday and realized things looked terrible. spent 6 hours on them. not great. anyone have tips for fixing this quickly?",
         features: [
             "specific timeframe (yesterday, 6 hours)",
             "short sentence (not great)",
-            "casual language (garbage)",
+            "casual language (terrible)",
             "genuine question",
             "vulnerable admission"
         ],
@@ -78,7 +78,7 @@ export const CASUAL_FRUSTRATION_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'casual',
         emotion: 'frustration',
-        content: "why do i spend more time aligning shapes than doing actual work lol. this is my 4th presentation this week and im already over it",
+        content: "why do i spend more time on busywork than doing actual work lol. this is my 4th time this week and im already over it",
         features: [
             "lowercase i",
             "no ending punctuation",
@@ -93,7 +93,7 @@ export const CASUAL_FRUSTRATION_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'casual',
         emotion: 'frustration',
-        content: "spent my entire sunday making slides look professional and they still look mid. presentation is tomorrow and im stressing. does anyone else struggle with this or am i just incompetent lmao",
+        content: "spent my entire sunday working on this and it still looks mid. deadline is tomorrow and im stressing. does anyone else struggle with this or am i just incompetent lmao",
         features: [
             "lowercase i",
             "specific day (sunday)",
@@ -111,7 +111,7 @@ export const CASUAL_CURIOSITY_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'casual',
         emotion: 'curiosity',
-        content: "been making like 3-4 presentations every week for the past 6 months and honestly wondering if theres a better way. currently just using google slides but feels super manual. what do yall use?",
+        content: "been making like 3-4 projects every week for the past 6 months and honestly wondering if theres a better way. currently just using google work but feels super manual. what do yall use?",
         features: [
             "specific numbers (3-4, 6 months)",
             "casual language (yall)",
@@ -126,7 +126,7 @@ export const CASUAL_CURIOSITY_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'casual',
         emotion: 'curiosity',
-        content: "saw someone mention using templates to save time on decks. do people actually use those or is it more work to customize them? genuinely curious bc i spend way too long on formatting",
+        content: "saw someone mention using templates to save time on projects. do people actually use those or is it more work to customize them? genuinely curious bc i spend way too long on formatting",
         features: [
             "reference to other content",
             "genuine question",
@@ -140,9 +140,9 @@ export const CASUAL_CURIOSITY_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'casual',
         emotion: 'curiosity',
-        content: "question for people who make a lot of presentations - how much time do you spend on them? i feel like i take forever (like 4-5 hours for a 15 slide deck) and idk if that's normal or if im just slow lol",
+        content: "question for people who make a lot of projects - how much time do you spend on them? i feel like i take forever (like 4-5 hours for a 15 work project) and idk if that's normal or if im just slow lol",
         features: [
-            "specific numbers (4-5 hours, 15 slides)",
+            "specific numbers (4-5 hours, 15 work)",
             "lowercase i",
             "casual markers (lol, idk)",
             "vulnerable admission (idk if im just slow)",
@@ -154,7 +154,7 @@ export const CASUAL_CURIOSITY_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'casual',
         emotion: 'curiosity',
-        content: "doing research on presentation tools bc powerpoint is killing me. what does everyone here use? looking for something that doesnt require a design degree to make things look decent",
+        content: "doing research on project tools bc the tool is killing me. what does everyone here use? looking for something that doesnt require a design degree to make things look decent",
         features: [
             "casual language (bc, killing me)",
             "lowercase start",
@@ -175,7 +175,7 @@ export const PROFESSIONAL_FRUSTRATION_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'professional',
         emotion: 'frustration',
-        content: "Been working on stakeholder decks for the past 6 months and finding that layout consistency is eating up about 40% of my deck creation time. Curious how others handle this - do you have template systems, or just manually align everything? Currently using PowerPoint with custom templates but still spending 2-3 hours per deck on formatting.",
+        content: "Been working on stakeholder projects for the past 6 months and finding that output consistency is eating up about 40% of my project creation time. Curious how others handle this - do you have template systems, or just manually align everything? Currently using the tool with custom templates but still spending 2-3 hours per project on formatting.",
         features: [
             "specific timeframe (6 months)",
             "specific percentage (40%)",
@@ -183,7 +183,7 @@ export const PROFESSIONAL_FRUSTRATION_POSTS: RedditExample[] = [
             "professional tone",
             "genuine question",
             "context provided",
-            "tool mentioned (PowerPoint)"
+            "tool mentioned (the tool)"
         ],
         qualityRating: 9
     },
@@ -191,7 +191,7 @@ export const PROFESSIONAL_FRUSTRATION_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'professional',
         emotion: 'frustration',
-        content: "Creating my 5th client deck this week and the repetitive formatting work is becoming a bottleneck. I'm spending roughly 3 hours per presentation just on layout and alignment when I should be focusing on content strategy. How do others in consulting manage this without sacrificing quality?",
+        content: "Creating my 5th client project this week and the repetitive formatting work is becoming a bottleneck. I'm spending roughly 3 hours per project just on layout and alignment when I should be focusing on content strategy. How do others in consulting manage this without sacrificing quality?",
         features: [
             "specific number (5th)",
             "specific timeframe (this week)",
@@ -206,7 +206,7 @@ export const PROFESSIONAL_FRUSTRATION_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'professional',
         emotion: 'frustration',
-        content: "Anyone else find themselves spending more time on slide formatting than actual analysis? I'm a consultant and probably 30-40% of my billable hours go to making decks look professional. This feels unsustainable. Would love to hear how others approach this.",
+        content: "Anyone else find themselves spending more time on work formatting than actual analysis? I'm a consultant and probably 30-40% of my billable hours go to making projects look professional. This feels unsustainable. Would love to hear how others approach this.",
         features: [
             "specific percentage (30-40%)",
             "professional context (consultant, billable hours)",
@@ -223,11 +223,11 @@ export const PROFESSIONAL_CURIOSITY_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'professional',
         emotion: 'curiosity',
-        content: "I've been exploring ways to streamline our presentation workflow. My team creates 10-15 client decks monthly, and we're spending significant time on formatting rather than strategy. Has anyone implemented automation or template systems that actually save time without compromising quality? Interested in both process improvements and tooling recommendations.",
+        content: "I've been exploring ways to streamline our project workflow. My team creates 10-15 client projects monthly, and we're spending significant time on formatting rather than strategy. Has anyone implemented automation or template systems that actually save time without compromising quality? Interested in both process improvements and tooling recommendations.",
         features: [
             "specific numbers (10-15, monthly)",
             "professional tone",
-            "context provided (team, client decks)",
+            "context provided (team, client projects)",
             "specific ask (automation, templates)",
             "balanced perspective (time vs quality)"
         ],
@@ -237,7 +237,7 @@ export const PROFESSIONAL_CURIOSITY_POSTS: RedditExample[] = [
         type: 'post',
         subredditType: 'professional',
         emotion: 'curiosity',
-        content: "Looking for perspectives on presentation creation tools. I manage a sales team that produces 20+ pitch decks per month. Currently using a mix of PowerPoint and Canva, but customization is time-intensive. What tools or workflows have people found effective for maintaining brand consistency while reducing production time?",
+        content: "Looking for perspectives on project creation tools. I manage a sales team that produces 20+ pitch projects per month. Currently using a mix of the tool and the platform, but customization is time-intensive. What tools or workflows have people found effective for maintaining brand consistency while reducing production time?",
         features: [
             "specific numbers (20+, per month)",
             "role context (manage sales team)",
@@ -272,7 +272,7 @@ export const CASUAL_EMPATHY_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'casual',
         emotion: 'empathy',
-        content: "honestly same lol. spent 4 hours on a deck last week and it still looked meh",
+        content: "honestly same lol. spent 4 hours on a project last week and it still looked meh",
         features: [
             "casual markers (honestly, lol, meh)",
             "lowercase start",
@@ -286,7 +286,7 @@ export const CASUAL_EMPATHY_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'casual',
         emotion: 'empathy',
-        content: "i feel this so hard. why is making slides harder than the actual work tho",
+        content: "i feel this so hard. why is making work harder than the actual work tho",
         features: [
             "lowercase i",
             "casual marker (tho)",
@@ -300,7 +300,7 @@ export const CASUAL_EMPATHY_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'casual',
         emotion: 'empathy',
-        content: "literally dealing with this rn. slides should not take this long to make",
+        content: "literally dealing with this rn. work should not take this long to make",
         features: [
             "casual marker (literally, rn)",
             "lowercase start",
@@ -314,7 +314,7 @@ export const CASUAL_EMPATHY_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'casual',
         emotion: 'empathy',
-        content: "dude same. i spent my whole weekend on a presentation and it was pain",
+        content: "dude same. i spent my whole weekend on a project and it was pain",
         features: [
             "lowercase i",
             "casual address (dude)",
@@ -345,7 +345,7 @@ export const CASUAL_CLARIFYING_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'casual',
         emotion: 'curiosity',
-        content: "what kind of presentations are you making? like sales decks or more internal stuff",
+        content: "what kind of projects are you making? like sales projects or more internal stuff",
         features: [
             "lowercase start",
             "casual filler (like)",
@@ -359,7 +359,7 @@ export const CASUAL_CLARIFYING_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'casual',
         emotion: 'curiosity',
-        content: "how many slides are we talking? bc if its like 50+ that's different than 10-15",
+        content: "how many work are we talking? bc if its like 50+ that's different than 10-15",
         features: [
             "lowercase start",
             "casual marker (bc)",
@@ -376,7 +376,7 @@ export const CASUAL_HELPFUL_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'casual',
         emotion: 'analytical',
-        content: "tbh i started using master templates and it cuts my time in half. still not perfect but way better than manually formatting everything",
+        content: "tbh i started using templates and it cuts my time in half. still not perfect but way better than manually formatting everything",
         features: [
             "casual marker (tbh)",
             "lowercase i",
@@ -390,7 +390,7 @@ export const CASUAL_HELPFUL_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'casual',
         emotion: 'analytical',
-        content: "one thing that helped me was making a library of pre-formatted slides. copy paste is your friend lol. saves like 30-40 min per deck",
+        content: "one thing that helped me was making a library of pre-formatted work. copy paste is your friend lol. saves like 30-40 min per project",
         features: [
             "lowercase start",
             "specific benefit (30-40 min)",
@@ -425,7 +425,7 @@ export const PROFESSIONAL_EMPATHY_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'professional',
         emotion: 'empathy',
-        content: "In my experience, the 2-3 hours you're spending is pretty normal for custom decks. It's frustrating but most consultants I know deal with the same issue.",
+        content: "In my experience, the 2-3 hours you're spending is pretty normal for custom projects. It's frustrating but most consultants I know deal with the same issue.",
         features: [
             "professional opener (in my experience)",
             "specific numbers referenced",
@@ -453,7 +453,7 @@ export const PROFESSIONAL_EMPATHY_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'professional',
         emotion: 'empathy',
-        content: "This resonates. I think most PMs struggle with balancing presentation quality and time investment. The context switching between strategic thinking and formatting is real.",
+        content: "This resonates. I think most PMs struggle with balancing project quality and time investment. The context switching between strategic thinking and formatting is real.",
         features: [
             "professional language (resonates, context switching)",
             "role reference (PMs)",
@@ -470,7 +470,7 @@ export const PROFESSIONAL_HELPFUL_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'professional',
         emotion: 'analytical',
-        content: "One approach that's worked for me is creating a master slide library with pre-formatted layouts. Still requires customization, but cuts my formatting time roughly in half. Not perfect, but a meaningful improvement.",
+        content: "One approach that's worked for me is creating a master work library with pre-formatted layouts. Still requires customization, but cuts my formatting time roughly in half. Not perfect, but a meaningful improvement.",
         features: [
             "professional opener",
             "specific solution",
@@ -484,7 +484,7 @@ export const PROFESSIONAL_HELPFUL_COMMENTS: RedditExample[] = [
         type: 'comment',
         subredditType: 'professional',
         emotion: 'analytical',
-        content: "From a workflow perspective, I've found that investing time upfront in templates pays dividends. At my firm, we built a library of ~50 standard layouts. Initial investment was significant, but ROI has been strong - estimate we save 30-40% on deck production time.",
+        content: "From a workflow perspective, I've found that investing time upfront in templates pays dividends. At my firm, we built a library of ~50 standard layouts. Initial investment was significant, but ROI has been strong - estimate we save 30-40% on project production time.",
         features: [
             "professional framing (workflow perspective, ROI)",
             "specific numbers (50 layouts, 30-40%)",

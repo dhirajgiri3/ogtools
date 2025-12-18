@@ -79,11 +79,11 @@ export const SUBREDDIT_PROFILES: Record<string, SubredditContext> = {
         promotionTolerance: 'low',
         commonTopics: [
             'client management',
-            'deck creation',
+            'deliverables',
             'project delivery',
             'career advice',
             'consulting frameworks',
-            'client presentations',
+            'client meetings',
             'strategy work',
             'work-life balance'
         ]
@@ -206,6 +206,130 @@ export const SUBREDDIT_PROFILES: Record<string, SubredditContext> = {
             'visual storytelling',
             'presentation software',
             'design best practices'
+        ]
+    },
+
+    // NEW B2B / SAAS SUBREDDITS
+    'r/SaaS': {
+        name: 'r/SaaS',
+        culture: 'professional',
+        formalityLevel: 0.6,
+        typicalCommentLength: { min: 80, max: 350 },
+        acceptableMarkers: ['MRR', 'ARR', 'churn', 'validation', 'PMF', 'imo'],
+        avoidMarkers: ['excessive self-promo', 'low-effort posts'],
+        moderationLevel: 'moderate',
+        promotionTolerance: 'moderate',
+        commonTopics: [
+            'pricing strategy',
+            'customer acquisition',
+            'churn reduction',
+            'tech stack',
+            'marketing channels',
+            'bootstrapping',
+            'payment gateways',
+            'hiring'
+        ]
+    },
+
+    'r/sideproject': {
+        name: 'r/sideproject',
+        culture: 'casual',
+        formalityLevel: 0.4,
+        typicalCommentLength: { min: 50, max: 250 },
+        acceptableMarkers: ['feedback?', 'thoughts?', 'built this', 'weekend project', 'tbh'],
+        avoidMarkers: ['corporate speak', 'formal pitches'],
+        moderationLevel: 'relaxed',
+        promotionTolerance: 'moderate',
+        commonTopics: [
+            'idea validation',
+            'project showcase',
+            'getting first users',
+            'tech stack',
+            'monetization',
+            'launch strategies',
+            'product hunt'
+        ]
+    },
+
+    'r/growthhacking': {
+        name: 'r/growthhacking',
+        culture: 'professional',
+        formalityLevel: 0.55,
+        typicalCommentLength: { min: 60, max: 300 },
+        acceptableMarkers: ['case study', 'results', 'tactics', 'insights'],
+        avoidMarkers: ['spam', 'black hat', 'vague advice'],
+        moderationLevel: 'moderate',
+        promotionTolerance: 'low',
+        commonTopics: [
+            'viral loops',
+            'seo strategies',
+            'cold outreach',
+            'conversion optimization',
+            'social media growth',
+            'email marketing',
+            'analytics',
+            'user acquisition'
+        ]
+    },
+
+    'r/digitalmarketing': {
+        name: 'r/digitalmarketing',
+        culture: 'professional',
+        formalityLevel: 0.6,
+        typicalCommentLength: { min: 70, max: 320 },
+        acceptableMarkers: ['ROI', 'CPC', 'CTR', 'in my experience'],
+        avoidMarkers: ['guru spam', 'get rich quick'],
+        moderationLevel: 'strict',
+        promotionTolerance: 'low',
+        commonTopics: [
+            'seo updates',
+            'ppc campaigns',
+            'content strategy',
+            'social media algorithms',
+            'agency life',
+            'client management',
+            'marketing tools',
+            'career advice'
+        ]
+    },
+
+    'r/webdev': {
+        name: 'r/webdev',
+        culture: 'technical',
+        formalityLevel: 0.5,
+        typicalCommentLength: { min: 40, max: 300 },
+        acceptableMarkers: ['docs', 'repo', 'bug', 'framework', 'imo'],
+        avoidMarkers: ['marketing fluff', 'non-technical questions'],
+        moderationLevel: 'strict',
+        promotionTolerance: 'zero',
+        commonTopics: [
+            'frontend frameworks',
+            'backend architecture',
+            'css tricks',
+            'api design',
+            'career questions',
+            'hosting solutions',
+            'performance optimization',
+            'debugging'
+        ]
+    },
+
+    'r/AskMarketing': {
+        name: 'r/AskMarketing',
+        culture: 'professional',
+        formalityLevel: 0.55,
+        typicalCommentLength: { min: 60, max: 300 },
+        acceptableMarkers: ['advice needed', 'what do you think', 'recommendations'],
+        avoidMarkers: ['spam', 'self-promo'],
+        moderationLevel: 'moderate',
+        promotionTolerance: 'low',
+        commonTopics: [
+            'marketing strategy',
+            'tool recommendations',
+            'career advice',
+            'student questions',
+            'social media help',
+            'digital marketing basics'
         ]
     }
 };

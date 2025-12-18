@@ -2,23 +2,6 @@ import { generateWithOpenAI } from '@/shared/lib/api/openai-client';
 import { EnhancedPersona } from '@/core/data/personas/persona-library';
 import { SubredditContext } from '@/core/types';
 
-/**
- * AI Quality Validator
- *
- * Uses GPT-4o-mini to analytically review generated content for authenticity.
- * This replaces heuristic scoring with AI-powered multi-dimensional validation.
- *
- * What It Validates:
- * 1. AI Pattern Detection - Detects formal language, perfect grammar, corporate speak
- * 2. Human Marker Presence - Checks for lowercase i, typos, casual markers
- * 3. Emotional Authenticity - Validates emotional expression feels genuine
- * 4. Persona Fit - Ensures content matches persona's voice and style
- * 5. Subreddit Fit - Validates content matches subreddit culture/formality
- * 6. Thread Coherence - For multi-comment threads, checks conversation flow
- *
- * Cost: ~$0.001 per validation (GPT-4o-mini at temp 0.3)
- */
-
 // TYPE DEFINITIONS
 
 export interface ValidationResult {

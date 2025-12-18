@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
+import { MessageCircle, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/components/ui/feedback/tooltip';
 
 export interface Annotation {
@@ -49,7 +49,7 @@ function AnnotationBadge({ annotation }: AnnotationBadgeProps) {
             case 'strength':
                 return <CheckCircle2 className="w-2.5 h-2.5" />;
             case 'authentic':
-                return <Sparkles className="w-2.5 h-2.5" />;
+                return <MessageCircle className="w-2.5 h-2.5" />;
             case 'natural':
                 return <CheckCircle2 className="w-2.5 h-2.5" />;
             case 'warning':

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Loader2, Check, Sparkles, Shield, Wand2 } from 'lucide-react';
+import { Loader2, Check, BrainCircuit, Shield, Wand2 } from 'lucide-react';
 import { Progress } from '@/shared/components/ui/feedback/progress';
 
 interface GenerationStatusProps {
@@ -11,7 +11,7 @@ interface GenerationStatusProps {
 
 export function GenerationStatus({ progress, status }: GenerationStatusProps) {
     const stages = [
-        { name: 'Preparing', icon: Sparkles, threshold: 10 },
+        { name: 'Preparing', icon: BrainCircuit, threshold: 10 },
         { name: 'Generating', icon: Wand2, threshold: 30 },
         { name: 'Quality Check', icon: Check, threshold: 70 },
         { name: 'Safety Scan', icon: Shield, threshold: 90 },

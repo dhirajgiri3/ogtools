@@ -3,51 +3,51 @@ import { PERSONA_LIBRARY } from './persona-library';
 
 /**
  * Demo Data Configuration
- * 
+ *
  * Pre-configured demo data for testing and demonstrations.
- * Based on the Reddit Mastermind product as the example company.
+ * Uses SlideForge as the example company for demo mode (?demo=slideforge).
+ *
+ * Note: The actual content generation algorithm is company-agnostic and will
+ * generate content specific to ANY company data provided by the user.
  */
 
 export const DEMO_COMPANY: CompanyContext = {
-    name: 'Reddit Mastermind',
-    product: 'AI-powered Reddit marketing automation tool',
+    name: 'SlideForge',
+    product: 'AI-powered presentation builder that transforms ideas into professional slides instantly',
     valuePropositions: [
-        'Generates authentic Reddit conversations that drive organic discovery',
-        'Creates psychologically-modeled personas for realistic engagement',
-        'Automates timing and subreddit targeting for maximum reach',
-        'Maintains brand safety with built-in quality validation',
-        'Scales Reddit marketing without sacrificing authenticity'
-    ],
-    icp: [
-        'B2B SaaS companies looking for organic growth channels',
-        'Marketing teams tired of traditional paid advertising',
-        'Startup founders seeking product-market fit through community feedback',
-        'Growth marketers exploring Reddit as a discovery channel'
+        'Creates presentation decks 10x faster than traditional tools',
+        'AI-generated content that matches your brand voice',
+        'Smart templates that adapt to your content',
+        'Collaborative editing with real-time feedback',
+        'Saves 10+ hours per week on slide creation'
     ],
     keywords: [
-        'reddit marketing',
-        'organic discovery',
-        'community marketing',
-        'reddit automation',
-        'authentic engagement',
-        'reddit growth',
-        'reddit advertising alternative',
-        'community-led growth',
-        'reddit content',
-        'subreddit marketing'
+        'presentation software',
+        'slide design',
+        'pitch decks',
+        'AI presentation tool',
+        'deck automation',
+        'PowerPoint alternative',
+        'presentation design',
+        'consulting slides',
+        'sales presentations'
     ]
 };
 
 export const DEMO_SUBREDDITS = [
-    'r/SaaS',
-    'r/startups',
-    'r/Entrepreneur',
     'r/marketing',
-    'r/growthmarketing',
-    'r/business',
-    'r/smallbusiness',
-    'r/ProductManagement',
-    'r/sales'
+    'r/consulting',
+    'r/SaaS',
+    'r/sideproject',
+    'r/growthhacking',
+    'r/digitalmarketing',
+    'r/webdev',
+    'r/AskMarketing',
+    'r/startups',
+    'r/sales',
+    'r/productivity',
+    'r/entrepreneur',
+    'r/freelance'
 ];
 
 /**

@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertCircle, CheckCircle2, AlertTriangle, Lightbulb } from 'lucide-react';
+import { GENERATION_LIMITS } from '@/config/constants';
 
 interface FrequencyCalculatorProps {
     postsPerWeek: number;
@@ -20,9 +21,9 @@ interface CalculationResult {
 }
 
 const LIMITS = {
-    POSTS_PER_SUBREDDIT: 2,
-    POSTS_PER_PERSONA: 7,
-    PRODUCT_MENTIONS_PER_PERSONA: 2
+    POSTS_PER_SUBREDDIT: GENERATION_LIMITS.MAX_POSTS_PER_SUBREDDIT,
+    POSTS_PER_PERSONA: GENERATION_LIMITS.MAX_POSTS_PER_PERSONA,
+    PRODUCT_MENTIONS_PER_PERSONA: GENERATION_LIMITS.MAX_PRODUCT_MENTIONS_PER_PERSONA
 };
 
 function calculateFrequency(

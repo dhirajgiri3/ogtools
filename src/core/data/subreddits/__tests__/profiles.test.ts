@@ -73,7 +73,7 @@ describe('Subreddit Profiler', () => {
   });
 
   test('moderation levels are valid', () => {
-    const validLevels = ['low', 'relaxed', 'moderate', 'medium', 'high', 'very_high'];
+    const validLevels = ['low', 'relaxed', 'moderate', 'medium', 'high', 'very_high', 'strict'];
 
     Object.values(SUBREDDIT_PROFILES).forEach(profile => {
       expect(validLevels).toContain(profile.moderationLevel);

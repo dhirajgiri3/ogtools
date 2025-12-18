@@ -89,7 +89,7 @@ function saveResults(testName, results) {
  * Evaluate content quality manually
  */
 function evaluateQuality(conversation) {
-    const eval = {
+    const evaluation = {
         conversationId: conversation.conversation.id,
         post: conversation.conversation.post.content.substring(0, 100) + '...',
         qualityScore: conversation.conversation.qualityScore.overall,
@@ -99,7 +99,7 @@ function evaluateQuality(conversation) {
         strengths: conversation.conversation.qualityScore.strengths.length
     };
 
-    return eval;
+    return evaluation;
 }
 
 /**

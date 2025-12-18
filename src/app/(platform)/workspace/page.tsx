@@ -80,7 +80,6 @@ function WorkspaceContent() {
         name: '',
         product: '',
         valuePropositions: [],
-        icp: [],
         keywords: []
     });
     const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
@@ -150,7 +149,6 @@ function WorkspaceContent() {
     const isValidConfig = company.name.trim() !== '' &&
         company.product.trim() !== '' &&
         company.valuePropositions.length >= 2 &&
-        company.icp.length >= 2 &&
         keywordsArray.length >= 3 &&
         selectedPersonas.length > 0 &&
         selectedSubreddits.length > 0;
@@ -167,11 +165,18 @@ function WorkspaceContent() {
             const personas = SLIDEFORGE_PERSONAS.filter(p => selectedPersonas.includes(p.id));
             const weekNumber = allWeeks.length + 1;
 
+            // Sync keywords with company object before sending to API
+            const keywordsArray = keywords.split(',').map(k => k.trim()).filter(Boolean);
+            const syncedCompany = {
+                ...company,
+                keywords: keywordsArray
+            };
+
             const config = {
-                company,
+                company: syncedCompany,
                 personas,
                 subreddits: selectedSubreddits,
-                keywords: keywords.split(',').map(k => k.trim()).filter(Boolean),
+                keywords: keywordsArray,
                 postsPerWeek,
                 qualityThreshold,
                 weekNumber,
@@ -247,6 +252,12 @@ function WorkspaceContent() {
         try {
             // Optimistic update - update UI immediately
             const updatedWeeks = [...allWeeks];
+            // Create a new reference for the modified week to trigger re-render
+            updatedWeeks[currentWeekIndex] = {
+                ...updatedWeeks[currentWeekIndex],
+                conversations: [...updatedWeeks[currentWeekIndex].conversations]
+            };
+
             const week = updatedWeeks[currentWeekIndex];
             const convIndex = week.conversations.findIndex(c => c.conversation.id === conversationId);
 
@@ -439,6 +450,100 @@ function WorkspaceContent() {
     }, [currentWeekIndex, calendar, allWeeks]);
 
     /**
+     * Regenerate current week with updated setup configuration
+     */
+    const handleRegenerateCurrentWeek = useCallback(async () => {
+        if (!isValidConfig || allWeeks.length === 0) return;
+
+        setIsGenerating(true);
+        setGenerationProgress(10);
+        setGenerationStatus('Regenerating with updated setup...');
+
+        try {
+            const personas = SLIDEFORGE_PERSONAS.filter(p => selectedPersonas.includes(p.id));
+            const weekToRegenerate = currentWeekIndex;
+
+            // Sync keywords with company object before sending to API
+            const keywordsArray = keywords.split(',').map(k => k.trim()).filter(Boolean);
+            const syncedCompany = {
+                ...company,
+                keywords: keywordsArray
+            };
+
+            const config = {
+                company: syncedCompany,
+                personas,
+                subreddits: selectedSubreddits,
+                keywords: keywordsArray,
+                postsPerWeek,
+                qualityThreshold,
+                weekNumber: allWeeks[currentWeekIndex].weekNumber,
+                previousWeeks: allWeeks.slice(0, currentWeekIndex)
+            };
+
+            setGenerationProgress(20);
+            setGenerationStatus('Generating conversations with updated setup...');
+
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            });
+
+            setGenerationProgress(80);
+            setGenerationStatus('Validating safety...');
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Regeneration failed');
+            }
+
+            const result = await response.json();
+
+            if (!result.conversations || result.conversations.length === 0) {
+                throw new Error('No conversations were generated. Please try again.');
+            }
+
+            setGenerationProgress(100);
+            setGenerationStatus('Complete!');
+
+            // Update the current week with new content
+            await calendarStorage.updateWeek(weekToRegenerate, result);
+
+            // Save updated params
+            localStorage.setItem('generationParams', JSON.stringify(config));
+
+            // Update UI
+            const updatedWeeks = calendarStorage.getAllWeeks();
+            setAllWeeks(updatedWeeks);
+
+            // Close ThreadPanel if conversation was deleted
+            setSelectedConversation(null);
+
+            // Collapse setup panel after successful regeneration
+            setSetupPanelOpen(false);
+
+            // Reset after delay
+            setTimeout(() => {
+                setIsGenerating(false);
+                setGenerationProgress(0);
+                setGenerationStatus('');
+                toast.success('Week regenerated with updated setup');
+            }, 1500);
+
+        } catch (error) {
+            console.error('Regeneration error:', error);
+            setGenerationStatus('Error occurred. Please try again.');
+            toast.error('Failed to regenerate week');
+            setTimeout(() => {
+                setIsGenerating(false);
+                setGenerationProgress(0);
+                setGenerationStatus('');
+            }, 2000);
+        }
+    }, [isValidConfig, company, selectedPersonas, selectedSubreddits, keywords, postsPerWeek, qualityThreshold, allWeeks, currentWeekIndex]);
+
+    /**
      * Update conversation scheduled time
      */
     const handleUpdateTime = useCallback(async (
@@ -495,7 +600,7 @@ function WorkspaceContent() {
                         size="icon-sm"
                         onClick={() => setSetupPanelOpen(!setupPanelOpen)}
                         className={`h-8 w-8 rounded-lg transition-all ${setupPanelOpen
-                            ? 'bg-zinc-900 text-white hover:bg-zinc-800'
+                            ? 'bg-zinc-900 text-white hover:bg-zinc-800 hover:text-white'
                             : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100'}`}
                     >
                         {setupPanelOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4" />}
@@ -597,7 +702,7 @@ function WorkspaceContent() {
                                 size="sm"
                                 onClick={() => setAnalyticsOpen(!analyticsOpen)}
                                 className={`h-8 text-xs font-medium rounded-lg transition-all ${analyticsOpen
-                                    ? 'bg-zinc-900 text-white hover:bg-zinc-800'
+                                    ? 'bg-zinc-900 text-white hover:bg-zinc-800 hover:text-white'
                                     : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
                                     }`}
                             >
@@ -650,7 +755,9 @@ function WorkspaceContent() {
                                 isValidConfig={isValidConfig}
                                 isGenerating={isGenerating}
                                 onGenerate={handleGenerate}
+                                onRegenerateCurrentWeek={handleRegenerateCurrentWeek}
                                 weekNumber={allWeeks.length + 1}
+                                hasExistingWeek={allWeeks.length > 0}
                             />
                         </motion.aside>
                     )}
@@ -667,6 +774,7 @@ function WorkspaceContent() {
                             onOpenSetup={() => setSetupPanelOpen(true)}
                             onRegenerate={handleRegenerateWeek}
                             isRegenerating={isGenerating}
+                            onUpdateTime={handleUpdateTime}
                         />
                     </div>
 

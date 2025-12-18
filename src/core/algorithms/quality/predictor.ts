@@ -4,7 +4,8 @@ import {
     QualityDimensions,
     Issue,
     Strength,
-    SubredditContext
+    SubredditContext,
+    CompanyContext
 } from '@/core/types';
 import { getSubredditProfile } from '@/core/data/subreddits/profiles';
 import { calculateTextSimilarity, calculateStyleVariance } from '@/shared/lib/utils/text-similarity';
@@ -32,7 +33,8 @@ import { calculateTextSimilarity, calculateStyleVariance } from '@/shared/lib/ut
  */
 function scoreSubredditRelevance(
     thread: ConversationThread,
-    subreddit: SubredditContext
+    subreddit: SubredditContext,
+    company?: CompanyContext
 ): { score: number; issues: Issue[]; strengths: Strength[] } {
     let score = 0;
     const issues: Issue[] = [];
@@ -50,26 +52,56 @@ function scoreSubredditRelevance(
         return words.some(word => postWords.includes(word.substring(0, Math.max(4, word.length - 2))));
     });
 
-    if (topicMatches.length >= 2) {
-        score += 10;
-        strengths.push({
-            type: 'topic_alignment',
-            message: 'Post aligns well with subreddit topics',
-            example: `Mentions: ${topicMatches.slice(0, 2).join(', ')}`
-        });
-    } else if (topicMatches.length === 1 || partialMatches.length >= 2) {
-        score += 8; // Increased from 5 to be less harsh
-    } else if (partialMatches.length >= 1) {
-        score += 6; // Partial credit
-    } else {
-        score += 3; // Give 3 points baseline instead of 0
-        issues.push({
-            type: 'off_topic',
-            severity: 'low', // Reduced severity from medium
-            message: 'Post may not align closely with subreddit topics',
-            suggestion: `Consider mentioning: ${subreddit.commonTopics.slice(0, 3).join(', ')}`
-        });
+    // Company Relevance (Priority Over Subreddit Topics)
+    if (company) {
+        const allContentLower = (thread.post.content + ' ' + thread.topLevelComments.map(c => c.content).join(' ')).toLowerCase();
+        // Check for ANY matching keyword from company context
+        const keywordMatch = company.keywords.find(k =>
+            allContentLower.includes(k.toLowerCase())
+        );
+
+        if (keywordMatch) {
+            // OVERRIDE: If it matches company keywords, it is RELEVANT, regardless of subreddit usage.
+            // Give 15 points (base topic match is 10)
+            score += 15;
+            strengths.push({
+                type: 'company_relevance',
+                message: 'Content is highly relevant to company domain',
+                example: `Matched keyword: "${keywordMatch}"`
+            });
+        }
     }
+
+    // Subreddit Topic Alignment (Secondary if Company Matches)
+    if (!company) {
+        // Only prioritize subreddit topics if no company context provided
+        if (topicMatches.length >= 2) {
+            score += 10;
+            strengths.push({
+                type: 'topic_alignment',
+                message: 'Post aligns well with subreddit topics',
+                example: `Mentions: ${topicMatches.slice(0, 2).join(', ')}`
+            });
+        } else if (topicMatches.length === 1 || partialMatches.length >= 2) {
+            score += 8;
+        } else if (partialMatches.length >= 1) {
+            score += 6;
+        } else {
+            score += 3;
+            issues.push({
+                type: 'off_topic',
+                severity: 'low',
+                message: 'Post may not align closely with subreddit topics',
+                suggestion: `Consider mentioning: ${subreddit.commonTopics.slice(0, 3).join(', ')}`
+            });
+        }
+    } else {
+        // If company context exists, just add small bonus for subreddit alignment
+        // but don't penalize mismatches (since user might be disrupting the space)
+        if (topicMatches.length >= 1) score += 5;
+    }
+
+    // Old check removed (integrated above)
 
     // Formality match (0-5)
     const formalityMatch = 1 - Math.abs(
@@ -559,12 +591,13 @@ function scoreEngagementDesign(
  * Predict quality score for conversation thread
  */
 export function predictQuality(
-    thread: ConversationThread
+    thread: ConversationThread,
+    company?: CompanyContext
 ): QualityScore {
     const subreddit = getSubredditProfile(thread.subreddit);
 
     // Score each dimension
-    const relevance = scoreSubredditRelevance(thread, subreddit);
+    const relevance = scoreSubredditRelevance(thread, subreddit, company);
     const specificity = scoreProblemSpecificity(thread);
     const authenticity = scoreAuthenticity(thread);
     const valueFirst = scoreValueFirst(thread);

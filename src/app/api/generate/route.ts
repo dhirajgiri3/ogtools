@@ -10,7 +10,17 @@ import { injectAuthenticity } from '@/core/algorithms/authenticity/engine';
 import { predictQuality } from '@/core/algorithms/quality/predictor';
 import { generateSchedule, applyScheduleToConversation } from '@/core/algorithms/timing/engine';
 import { validateSafety } from '@/core/algorithms/safety/validator';
+import { Comment, Reply } from '@/core/types';
+import { GENERATION_LIMITS, LLM_CONFIG } from '@/config/constants';
+import {
+    ValidationError,
+    GenerationError,
+    toErrorResponse,
+    APIKeyError,
+    FrequencyLimitError
+} from '@/core/errors';
 import { extractWeekContext, selectDiverseSubreddit } from '@/core/algorithms/timing/week-context';
+import { extractCompanyActivities } from '@/core/algorithms/company/activity-extractor';
 
 /**
  * POST /api/generate
@@ -33,11 +43,61 @@ export async function POST(req: NextRequest) {
         // Parse request body
         const input: GenerationInput = await req.json();
 
-        // Validate input
-        if (!input.company || !input.personas || !input.subreddits || !input.keywords) {
-            return NextResponse.json(
-                { error: 'Missing required fields: company, personas, subreddits, keywords' },
-                { status: 400 }
+        // Validate required fields
+        if (!input.company?.name || !input.company?.product) {
+            throw new ValidationError(
+                'Company name and product description are required',
+                'company'
+            );
+        }
+
+        if (!input.personas || input.personas.length < GENERATION_LIMITS.MIN_PERSONAS_REQUIRED) {
+            throw new ValidationError(
+                `At least ${GENERATION_LIMITS.MIN_PERSONAS_REQUIRED} persona required`,
+                'personas',
+                { provided: input.personas?.length || 0, required: GENERATION_LIMITS.MIN_PERSONAS_REQUIRED }
+            );
+        }
+
+        if (!input.subreddits || input.subreddits.length < GENERATION_LIMITS.MIN_SUBREDDITS_REQUIRED) {
+            throw new ValidationError(
+                `At least ${GENERATION_LIMITS.MIN_SUBREDDITS_REQUIRED} subreddit required`,
+                'subreddits',
+                { provided: input.subreddits?.length || 0, required: GENERATION_LIMITS.MIN_SUBREDDITS_REQUIRED }
+            );
+        }
+
+        if (!input.keywords || input.keywords.length < GENERATION_LIMITS.MIN_KEYWORDS_REQUIRED) {
+            throw new ValidationError(
+                `At least ${GENERATION_LIMITS.MIN_KEYWORDS_REQUIRED} keywords required`,
+                'keywords',
+                { provided: input.keywords?.length || 0, required: GENERATION_LIMITS.MIN_KEYWORDS_REQUIRED }
+            );
+        }
+
+        // INTELLIGENT ACTIVITY EXTRACTION (Step 1 of Refinement Plan)
+        // If activities are missing (first time setup), extract them using AI
+        if (!input.company.activities || input.company.activities.length === 0) {
+            console.log('🧠 Extracting intelligent activities for company...');
+            try {
+                input.company.activities = await extractCompanyActivities(input.company);
+            } catch (err) {
+                console.warn('Activity extraction failed, falling back to keywords', err);
+                // Fallback will happen in prompt-builder
+            }
+        }
+
+        // Validate posts per week range
+        if (input.postsPerWeek < GENERATION_LIMITS.MIN_POSTS_PER_WEEK ||
+            input.postsPerWeek > GENERATION_LIMITS.MAX_POSTS_PER_WEEK) {
+            throw new ValidationError(
+                `Posts per week must be between ${GENERATION_LIMITS.MIN_POSTS_PER_WEEK} and ${GENERATION_LIMITS.MAX_POSTS_PER_WEEK}`,
+                'postsPerWeek',
+                {
+                    provided: input.postsPerWeek,
+                    min: GENERATION_LIMITS.MIN_POSTS_PER_WEEK,
+                    max: GENERATION_LIMITS.MAX_POSTS_PER_WEEK
+                }
             );
         }
 
@@ -59,34 +119,29 @@ export async function POST(req: NextRequest) {
             console.log(`📊 Context: ${weekContext.usedTopics.length} topics, ${weekContext.personaUsage.size} personas used`);
         }
 
-        // Pre-validate frequency limits
-        const maxPostsPerSubreddit = 2;
-        const maxPostsPerPersona = 7;
+        // Pre-validate frequency limits using centralized config
+        const maxPostsPerSubreddit = GENERATION_LIMITS.MAX_POSTS_PER_SUBREDDIT;
+        const maxPostsPerPersona = GENERATION_LIMITS.MAX_POSTS_PER_PERSONA;
 
-        if (input.subreddits.length > 0) {
-            const postsPerSubreddit = Math.ceil(input.postsPerWeek / input.subreddits.length);
-            if (postsPerSubreddit > maxPostsPerSubreddit) {
-                return NextResponse.json(
-                    {
-                        error: 'Frequency limit violation',
-                        details: `Requested ${input.postsPerWeek} posts across ${input.subreddits.length} subreddits would result in ${postsPerSubreddit} posts per subreddit (max: ${maxPostsPerSubreddit}). Please add more subreddits or reduce postsPerWeek.`
-                    },
-                    { status: 400 }
-                );
-            }
+        const postsPerSubreddit = Math.ceil(input.postsPerWeek / input.subreddits.length);
+        const postsPerPersona = Math.ceil(input.postsPerWeek / input.personas.length);
+
+        if (postsPerSubreddit > maxPostsPerSubreddit) {
+            throw new FrequencyLimitError(
+                `Too many posts per subreddit: ${postsPerSubreddit} (max: ${maxPostsPerSubreddit})`,
+                maxPostsPerSubreddit,
+                postsPerSubreddit,
+                'subreddit'
+            );
         }
 
-        if (input.personas.length > 0) {
-            const postsPerPersona = Math.ceil(input.postsPerWeek / input.personas.length);
-            if (postsPerPersona > maxPostsPerPersona) {
-                return NextResponse.json(
-                    {
-                        error: 'Frequency limit violation',
-                        details: `Requested ${input.postsPerWeek} posts with ${input.personas.length} personas would result in ${postsPerPersona} posts per persona (max: ${maxPostsPerPersona}). Please add more personas or reduce postsPerWeek.`
-                    },
-                    { status: 400 }
-                );
-            }
+        if (postsPerPersona > maxPostsPerPersona) {
+            throw new FrequencyLimitError(
+                `Too many posts per persona: ${postsPerPersona} (max: ${maxPostsPerPersona})`,
+                maxPostsPerPersona,
+                postsPerPersona,
+                'persona'
+            );
         }
 
         // Generate conversations in PARALLEL for speed
@@ -95,6 +150,7 @@ export async function POST(req: NextRequest) {
         const MAX_REGENERATION_ATTEMPTS = 1; // Reduced from 2 to 1 for speed
 
         console.log(`⚡ Starting parallel generation of ${input.postsPerWeek} conversations...`);
+        console.log(`📋 Personas received (${input.personas.length}):`, input.personas.map(p => p.id));
         const startTime = Date.now();
 
         // PRE-ASSIGN personas for each conversation to ensure proper rotation
@@ -104,6 +160,7 @@ export async function POST(req: NextRequest) {
             const personaIndex = i % input.personas.length;
             personaAssignments.push(input.personas[personaIndex].id);
         }
+        console.log(`🎭 Persona assignments for ${input.postsPerWeek} posts:`, personaAssignments);
 
         // Create all generation promises with quality-gated regeneration
         const generationPromises = Array.from({ length: input.postsPerWeek }, async (_, i) => {
@@ -175,7 +232,7 @@ export async function POST(req: NextRequest) {
                     baseConversation.post.content = newPostContent;
 
                     // Score quality
-                    const qualityScore = predictQuality(baseConversation as ConversationThread);
+                    const qualityScore = predictQuality(baseConversation as ConversationThread, input.company);
 
                     // Keep track of best attempt
                     if (qualityScore.overall > bestScore) {
@@ -281,36 +338,24 @@ export async function POST(req: NextRequest) {
         const errorMessage = error instanceof Error ? error.stack || error.message : 'Unknown error';
         console.error('Stack:', errorMessage);
 
-        // Write to error.log for debugging
-        try {
-            const fs = require('fs');
-            const path = require('path');
-            const logPath = path.join(process.cwd(), 'error.log');
-            fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] ${errorMessage}\n`);
-        } catch (e) {
-            console.error('Failed to write info to log file', e);
-        }
+        console.error('Generation error:', error);
 
-        if (error instanceof SyntaxError) {
-            return NextResponse.json(
-                { error: 'Invalid JSON in request body' },
-                { status: 400 }
-            );
-        }
+        // Use custom error response formatter
+        const errorResponse = toErrorResponse(error);
 
         return NextResponse.json(
-            {
-                error: 'Internal server error during generation',
-                details: errorMessage
-            },
-            { status: 500 }
+            errorResponse,
+            { status: errorResponse.statusCode }
         );
     }
 }
 
 export async function GET() {
     return NextResponse.json(
-        { message: 'POST to this endpoint with GenerationInput to generate calendars' },
+        {
+            message: 'POST to this endpoint with GenerationInput to generate calendars',
+            documentation: '/api/docs'
+        },
         { status: 200 }
     );
 }

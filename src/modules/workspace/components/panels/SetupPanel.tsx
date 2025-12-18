@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Building2, Users, Settings, Sparkles, ChevronDown, ChevronUp,
-    Check, AlertCircle
+    Building2, Users, Settings, Loader2, ChevronDown, ChevronUp,
+    Check, AlertCircle, Zap, TrendingUp, Lightbulb, BarChart, RotateCcw, Trash2, Info
 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/inputs/button';
 import { Input } from '@/shared/components/ui/inputs/input';
@@ -33,7 +33,9 @@ interface SetupPanelProps {
     isValidConfig: boolean;
     isGenerating: boolean;
     onGenerate: () => void;
+    onRegenerateCurrentWeek?: () => void;
     weekNumber: number;
+    hasExistingWeek?: boolean;
 }
 
 // Value proposition suggestions
@@ -45,15 +47,6 @@ const VALUE_PROP_SUGGESTIONS = [
     'Improves team collaboration'
 ];
 
-// ICP suggestions
-const ICP_SUGGESTIONS = [
-    'B2B SaaS founders',
-    'Marketing teams',
-    'Product managers',
-    'Sales leaders',
-    'Operations managers',
-    'Remote teams'
-];
 
 // Keyword suggestions
 const KEYWORD_SUGGESTIONS = [
@@ -79,7 +72,9 @@ export function SetupPanel({
     isValidConfig,
     isGenerating,
     onGenerate,
-    weekNumber
+    onRegenerateCurrentWeek,
+    weekNumber,
+    hasExistingWeek = false
 }: SetupPanelProps) {
     const [expandedSection, setExpandedSection] = useState<Section | null>('brand');
 
@@ -91,7 +86,6 @@ export function SetupPanel({
     const brandValid = company.name.trim() !== '' &&
         company.product.trim() !== '' &&
         company.valuePropositions.length >= 2 &&
-        company.icp.length >= 2 &&
         keywordsArray.length >= 3;
     const personasValid = selectedPersonas.length > 0;
     const settingsValid = selectedSubreddits.length > 0;
@@ -116,30 +110,95 @@ export function SetupPanel({
         );
     };
 
+    const handleClearAllData = () => {
+        if (confirm('This will clear all generated calendars and reset your setup. Continue?')) {
+            // Clear localStorage
+            localStorage.removeItem('generatedCalendars');
+            localStorage.removeItem('generationParams');
+
+            // Reset form to empty state
+            setCompany({
+                name: '',
+                product: '',
+                valuePropositions: [],
+                keywords: []
+            });
+            setSelectedPersonas([]);
+            setSelectedSubreddits([]);
+            setKeywords('');
+            setPostsPerWeek(7);
+            setQualityThreshold(80);
+
+            // Reload page to clear all state
+            window.location.reload();
+        }
+    };
+
+    // Calculate overall progress
+    const totalSections = 3;
+    const completedSections = [brandValid, personasValid, settingsValid].filter(Boolean).length;
+    const progressPercentage = (completedSections / totalSections) * 100;
+
     return (
-        <div className="h-full flex flex-col w-80 bg-white">
-            {/* Panel Header */}
-            <div className="flex-shrink-0 p-5 border-b border-zinc-100 bg-gradient-to-b from-zinc-50/50 to-white">
-                <h2 className="font-semibold text-zinc-900 tracking-tight text-base">Campaign Setup</h2>
-                <p className="text-xs text-zinc-500 mt-1">Configure your content strategy</p>
+        <div className="h-full flex flex-col w-80 bg-white border-r border-zinc-200">
+            {/* Panel Header with Progress */}
+            <div className="flex-shrink-0 p-5 border-b border-zinc-200 bg-white">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-semibold text-zinc-900 text-sm flex items-center gap-2">
+                        Campaign Setup
+                    </h2>
+                    <span className="text-xs font-medium text-zinc-500 tabular-nums">{completedSections}/{totalSections}</span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="h-1 bg-zinc-100 rounded-full overflow-hidden">
+                    <motion.div
+                        className="h-full bg-zinc-900"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progressPercentage}%` }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                    />
+                </div>
+
+                {/* Info Banner - Test with your own data */}
+                {hasExistingWeek && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex gap-2">
+                            <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                            <div className="text-xs text-blue-900">
+                                <p className="font-medium mb-1">Test with your own data</p>
+                                <p className="text-blue-700">
+                                    Content is generated from YOUR inputs. Clear data below to start fresh and test different companies.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Scrollable Sections */}
             <div className="flex-1 overflow-y-auto">
                 {/* Brand Section */}
                 <section className="border-b border-zinc-100">
-                    <button
+                    <motion.button
                         onClick={() => toggleSection('brand')}
-                        className="w-full p-4 flex items-center justify-between hover:bg-zinc-50/50 transition-colors group"
+                        className="w-full p-4 flex items-center justify-between hover:bg-zinc-50 transition-colors group"
                     >
                         <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-all ${brandValid
-                                ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white'
-                                : 'bg-zinc-100 text-zinc-400 group-hover:bg-zinc-200'}`}>
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${brandValid
+                                ? 'bg-zinc-900 border-zinc-900 text-white'
+                                : 'bg-white border-zinc-200 text-zinc-400 group-hover:border-zinc-300'}`}>
                                 {brandValid ? <Check className="w-4 h-4" /> : <Building2 className="w-4 h-4" />}
                             </div>
                             <div className="text-left">
-                                <span className="font-medium text-zinc-900 text-sm block">Your Brand</span>
+                                <span className="font-medium text-zinc-900 text-sm block flex items-center gap-2">
+                                    Your Brand
+                                    {brandValid && (
+                                        <span className="text-[10px] text-zinc-500 font-normal">
+                                            Scale
+                                        </span>
+                                    )}
+                                </span>
                                 {company.name && (
                                     <span className="text-[11px] text-zinc-500 truncate max-w-[140px] block">
                                         {company.name}
@@ -147,8 +206,8 @@ export function SetupPanel({
                                 )}
                             </div>
                         </div>
-                        <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'brand' ? 'rotate-180' : ''}`} />
-                    </button>
+                        <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-300 ${expandedSection === 'brand' ? 'rotate-180' : ''}`} />
+                    </motion.button>
 
                     <AnimatePresence>
                         {expandedSection === 'brand' && (
@@ -197,17 +256,6 @@ export function SetupPanel({
                                         suggestions={VALUE_PROP_SUGGESTIONS}
                                     />
 
-                                    <DynamicListInput
-                                        label="Ideal Customer Profile (ICP)"
-                                        description="Who are your ideal customers? (2-5 items)"
-                                        value={company.icp}
-                                        onChange={(value) => setCompany({ ...company, icp: value })}
-                                        placeholder="e.g., B2B SaaS founders"
-                                        min={2}
-                                        max={5}
-                                        suggestions={ICP_SUGGESTIONS}
-                                    />
-
                                     <TagInput
                                         label="Keywords"
                                         description="Topics and themes for content targeting (3-15 keywords)"
@@ -233,25 +281,32 @@ export function SetupPanel({
 
                 {/* Personas Section */}
                 <section className="border-b border-zinc-100">
-                    <button
+                    <motion.button
                         onClick={() => toggleSection('personas')}
-                        className="w-full p-4 flex items-center justify-between hover:bg-zinc-50/50 transition-colors group"
+                        className="w-full p-4 flex items-center justify-between hover:bg-zinc-50 transition-colors group"
                     >
                         <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-all ${personasValid
-                                ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white'
-                                : 'bg-zinc-100 text-zinc-400 group-hover:bg-zinc-200'}`}>
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${personasValid
+                                ? 'bg-zinc-900 border-zinc-900 text-white'
+                                : 'bg-white border-zinc-200 text-zinc-400 group-hover:border-zinc-300'}`}>
                                 {personasValid ? <Check className="w-4 h-4" /> : <Users className="w-4 h-4" />}
                             </div>
                             <div className="text-left">
-                                <span className="font-medium text-zinc-900 text-sm block">Personas</span>
+                                <span className="font-medium text-zinc-900 text-sm block flex items-center gap-2">
+                                    Personas
+                                    {personasValid && (
+                                        <span className="text-[10px] text-zinc-500 font-normal">
+                                            {selectedPersonas.length}
+                                        </span>
+                                    )}
+                                </span>
                                 <span className="text-[11px] text-zinc-500 block">
-                                    {selectedPersonas.length} selected
+                                    Target audience
                                 </span>
                             </div>
                         </div>
-                        <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'personas' ? 'rotate-180' : ''}`} />
-                    </button>
+                        <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-300 ${expandedSection === 'personas' ? 'rotate-180' : ''}`} />
+                    </motion.button>
 
                     <AnimatePresence>
                         {expandedSection === 'personas' && (
@@ -297,18 +352,18 @@ export function SetupPanel({
                 <section>
                     <button
                         onClick={() => toggleSection('settings')}
-                        className="w-full p-4 flex items-center justify-between hover:bg-zinc-50/50 transition-colors group"
+                        className="w-full p-4 flex items-center justify-between hover:bg-zinc-50 transition-colors group"
                     >
                         <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-all ${settingsValid
-                                ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white'
-                                : 'bg-zinc-100 text-zinc-400 group-hover:bg-zinc-200'}`}>
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${settingsValid
+                                ? 'bg-zinc-900 border-zinc-900 text-white'
+                                : 'bg-white border-zinc-200 text-zinc-400 group-hover:border-zinc-300'}`}>
                                 {settingsValid ? <Check className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
                             </div>
                             <div className="text-left">
                                 <span className="font-medium text-zinc-900 text-sm block">Settings</span>
                                 <span className="text-[11px] text-zinc-500 block">
-                                    {postsPerWeek} posts • {selectedSubreddits.length} subreddits
+                                    {postsPerWeek} posts, {selectedSubreddits.length} subs
                                 </span>
                             </div>
                         </div>
@@ -394,22 +449,66 @@ export function SetupPanel({
             </div>
 
             {/* Generate Button (Fixed at bottom) */}
-            <div className="flex-shrink-0 p-4 bg-gradient-to-t from-white via-white to-white/80 border-t border-zinc-100">
+            <div className="flex-shrink-0 p-4 border-t border-zinc-200 bg-white space-y-2">
+                {hasExistingWeek && onRegenerateCurrentWeek && (
+                    <Button
+                        onClick={onRegenerateCurrentWeek}
+                        disabled={!isValidConfig || isGenerating}
+                        className="w-full h-11 bg-white hover:bg-zinc-50 text-zinc-900 border border-zinc-300 font-medium shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm rounded-lg"
+                    >
+                        {isGenerating ? (
+                            <span className="flex items-center gap-2">
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                >
+                                    <Loader2 className="w-4 h-4" />
+                                </motion.div>
+                                Regenerating Week {weekNumber - 1}...
+                            </span>
+                        ) : (
+                            <span className="flex items-center gap-2">
+                                <RotateCcw className="w-4 h-4" />
+                                Regenerate Week {weekNumber - 1}
+                            </span>
+                        )}
+                    </Button>
+                )}
                 <Button
                     onClick={onGenerate}
                     disabled={!isValidConfig || isGenerating}
-                    className="w-full h-11 bg-gradient-to-r from-zinc-900 to-zinc-800 hover:from-zinc-800 hover:to-zinc-700 text-white font-semibold shadow-lg shadow-zinc-900/15 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none text-sm rounded-xl"
+                    className="w-full h-11 bg-zinc-900 hover:bg-zinc-800 text-white font-medium shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm rounded-lg"
                 >
                     {isGenerating ? (
-                        <>
-                            Generating...
-                        </>
+                        <span className="flex items-center gap-2">
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            >
+                                <Loader2 className="w-4 h-4" />
+                            </motion.div>
+                            Generating Week {weekNumber}...
+                        </span>
                     ) : (
-                        <>
+                        <span className="flex items-center gap-2">
+                            <Zap className="w-4 h-4" />
                             Generate Week {weekNumber}
-                        </>
+                        </span>
                     )}
                 </Button>
+
+                {/* Clear All Data Button */}
+                {hasExistingWeek && (
+                    <Button
+                        onClick={handleClearAllData}
+                        disabled={isGenerating}
+                        variant="ghost"
+                        className="w-full h-9 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed rounded-lg"
+                    >
+                        <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                        Clear All Data & Start Fresh
+                    </Button>
+                )}
             </div>
         </div>
     );

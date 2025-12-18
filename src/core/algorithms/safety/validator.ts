@@ -7,6 +7,7 @@ import {
     AccountHistory,
     Persona
 } from '@/core/types';
+import { GENERATION_LIMITS, SAFETY_THRESHOLDS } from '@/config/constants';
 import { calculateTextSimilarity, findRepeatedPhrases } from '@/shared/lib/utils/text-similarity';
 import { getMinutesDifference, calculateTimingCV } from '../timing/utils';
 
@@ -60,16 +61,16 @@ function checkAccountReadiness(
 
         // Check account age (30+ days required)
         if (account.accountAge < 30) {
-            issues.push(`${account.personaId}: Account too new (${account.accountAge} days, need 30+)`);
+            issues.push(`${account.personaId}: Account too new (${account.accountAge} days, need 30 +)`);
             accountScore -= 0.5;
         } else if (account.accountAge < 60) {
-            issues.push(`${account.personaId}: Account age marginal (${account.accountAge} days)`);
+            issues.push(`${account.personaId}: Account age marginal(${account.accountAge} days)`);
             accountScore -= 0.2;
         }
 
         // Check karma (50+ required)
         if (account.karma < 50) {
-            issues.push(`${account.personaId}: Karma too low (${account.karma}, need 50+)`);
+            issues.push(`${account.personaId}: Karma too low(${account.karma}, need 50 +)`);
             accountScore -= 0.5;
         }
 
@@ -128,7 +129,7 @@ function checkFrequencyLimits(
     // Check subreddit frequency (max 2 posts per subreddit per week)
     subredditPosts.forEach((count, subreddit) => {
         if (count > 2) {
-            issues.push(`${subreddit}: ${count} posts/week (limit: 2)`);
+            issues.push(`${subreddit}: ${count} posts / week(limit: 2)`);
             violationCount++;
         }
     });
@@ -136,7 +137,7 @@ function checkFrequencyLimits(
     // Check persona frequency (max 7 posts per persona per week)
     personaPosts.forEach((count, personaId) => {
         if (count > 7) {
-            issues.push(`${personaId}: ${count} posts/week (limit: 7)`);
+            issues.push(`${personaId}: ${count} posts / week(limit: 7)`);
             violationCount++;
         }
     });
@@ -144,7 +145,7 @@ function checkFrequencyLimits(
     // Check product mention frequency (max 1 per persona per week)
     personaProductMentions.forEach((data, personaId) => {
         if (data.count > 1) {
-            issues.push(`${personaId}: ${data.count} product mentions/week (limit: 1)`);
+            issues.push(`${personaId}: ${data.count} product mentions / week(limit: 1)`);
             violationCount++;
         }
     });
@@ -177,7 +178,7 @@ function checkTimingRealism(
         if (sc.commentTimings.length > 0) {
             const firstCommentDelay = getMinutesDifference(postTime, sc.commentTimings[0]);
             if (firstCommentDelay < 5) {
-                issues.push(`First comment too fast (${Math.round(firstCommentDelay)}min, need 5+ min)`);
+                issues.push(`First comment too fast(${Math.round(firstCommentDelay)}min, need 5 + min)`);
                 violationCount++;
             }
         }
@@ -187,7 +188,7 @@ function checkTimingRealism(
         if (allTimings.length >= 3) {
             const cv = calculateTimingCV(allTimings);
             if (cv < 0.3) {
-                issues.push(`Timing too regular (CV: ${cv.toFixed(2)}, need \u003e0.3)`);
+                issues.push(`Timing too regular(CV: ${cv.toFixed(2)}, need \u003e0.3)`);
                 violationCount++;
             }
         }
@@ -199,7 +200,7 @@ function checkTimingRealism(
             const timeSpan = getMinutesDifference(firstComment, lastComment);
 
             if (timeSpan < 60 && sc.commentTimings.length >= 3) {
-                issues.push(`All comments in ${Math.round(timeSpan)}min (suspicious if \u003c60min)`);
+                issues.push(`All comments in ${Math.round(timeSpan)} min(suspicious if \u003c60min)`);
                 violationCount++;
             }
         }
@@ -288,10 +289,10 @@ function checkContentSimilarity(
         for (let j = i + 1; j < posts.length; j++) {
             const similarity = calculateTextSimilarity(posts[i], posts[j]);
             if (similarity > 0.7) {
-                issues.push(`Posts ${i + 1} and ${j + 1} are ${Math.round(similarity * 100)}% similar (limit: 70%)`);
+                issues.push(`Posts ${i + 1} and ${j + 1} are ${Math.round(similarity * 100)}% similar(limit: 70 %)`);
                 violationCount++;
             } else if (similarity > 0.6) {
-                issues.push(`Posts ${i + 1} and ${j + 1} are ${Math.round(similarity * 100)}% similar (warning: \u003e60%)`);
+                issues.push(`Posts ${i + 1} and ${j + 1} are ${Math.round(similarity * 100)}% similar(warning: \u003e60 %)`);
             }
         }
     }
@@ -301,7 +302,7 @@ function checkContentSimilarity(
         for (let j = i + 1; j < productMentions.length; j++) {
             const similarity = calculateTextSimilarity(productMentions[i], productMentions[j]);
             if (similarity > 0.7) {
-                issues.push(`Product mentions too similar (${Math.round(similarity * 100)}%)`);
+                issues.push(`Product mentions too similar(${Math.round(similarity * 100)} %)`);
                 violationCount++;
             }
         }
@@ -313,7 +314,7 @@ function checkContentSimilarity(
     const problematicPhrases = [...repeatedPhrases.entries()].filter(([_, count]) => count > 2);
 
     if (problematicPhrases.length > 0) {
-        issues.push(`${problematicPhrases.length} phrases repeated 3+ times (template fingerprint)`);
+        issues.push(`${problematicPhrases.length} phrases repeated 3 + times(template fingerprint)`);
         violationCount++;
     }
 

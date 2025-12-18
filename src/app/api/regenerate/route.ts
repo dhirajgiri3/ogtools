@@ -112,7 +112,6 @@ async function regenerateSingleConversation(input: RegenerateRequest): Promise<N
         name: '', // Will be inferred from conversation content
         product: '',
         valuePropositions: [],
-        icp: [],
         keywords: []
     };
 
@@ -254,7 +253,7 @@ async function regenerateWeek(input: RegenerateRequest): Promise<NextResponse> {
             const baseConversation = await generateConversation(
                 arcType,
                 uniquePersonas,
-                { name: '', product: '', valuePropositions: [], icp: [], keywords: [] },
+                { name: '', product: '', valuePropositions: [], keywords: [] },
                 subreddit,
                 [],
                 new Set()

@@ -14,40 +14,126 @@ function randomOrdinal(): string {
     return randomChoice(ordinals);
 }
 
+/**
+ * Generate relevant activities from company context
+ * Converts company product/value props into natural activity phrases
+ */
+function generateActivitiesFromCompany(company: CompanyContext): string[] {
+    const activities: string[] = [];
+
+    // Extract product name and type
+    const productLower = company.product.toLowerCase();
+
+    // Build activity phrases based on product type
+    // Try to extract action verbs or create natural activities
+
+    // Generic activities that work for any tool/service
+    activities.push(`working with ${company.name}`);
+    activities.push(`trying to use ${company.name}`);
+
+    // PRIORITY: Use AI-extracted activities if available
+    if (company.activities && company.activities.length > 0) {
+        // Return mostly specific activities, plus 1-2 generic ones
+        return [
+            ...company.activities,
+            `struggling with ${company.product.split(' ').slice(-2).join(' ')}` // "struggling with [last 2 words of product]"
+        ].slice(0, 8);
+    }
+
+    // Extract activities from product description
+    // Look for keywords that indicate activities
+    if (productLower.includes('marketing')) {
+        activities.push('running marketing campaigns');
+        activities.push('doing marketing work');
+    }
+    if (productLower.includes('reddit')) {
+        activities.push('posting on Reddit');
+        activities.push('managing Reddit content');
+    }
+    if (productLower.includes('automation') || productLower.includes('automate')) {
+        activities.push('trying to automate this');
+        activities.push('setting up automation');
+    }
+    if (productLower.includes('presentation') || productLower.includes('slide') || productLower.includes('deck')) {
+        activities.push('making slides');
+        activities.push('building presentations');
+        activities.push('creating pitch decks');
+    }
+    if (productLower.includes('design')) {
+        activities.push('working on designs');
+        activities.push('creating designs');
+    }
+    if (productLower.includes('content')) {
+        activities.push('creating content');
+        activities.push('managing content');
+    }
+    if (productLower.includes('crm') || productLower.includes('sales')) {
+        activities.push('managing leads');
+        activities.push('tracking customers');
+    }
+    if (productLower.includes('analytics') || productLower.includes('data')) {
+        activities.push('analyzing data');
+        activities.push('building reports');
+    }
+
+    // Extract from value propositions
+    company.valuePropositions.forEach(vp => {
+        const vpLower = vp.toLowerCase();
+        // Look for action verbs
+        if (vpLower.includes('generate')) {
+            const match = vpLower.match(/generates?\s+([\w\s]+)/);
+            if (match) activities.push(`generating ${match[1].trim()}`);
+        }
+        if (vpLower.includes('create')) {
+            const match = vpLower.match(/creates?\s+([\w\s]+)/);
+            if (match) activities.push(`creating ${match[1].trim()}`);
+        }
+        if (vpLower.includes('automate')) {
+            const match = vpLower.match(/automates?\s+([\w\s]+)/);
+            if (match) activities.push(`automating ${match[1].trim()}`);
+        }
+    });
+
+    // Fallback: generic work activities
+    if (activities.length < 4) {
+        activities.push(`handling ${productLower}`);
+        activities.push(`managing this workflow`);
+        activities.push(`trying to optimize this process`);
+    }
+
+    // Return up to 6 activities (same as original hardcoded list)
+    return activities.slice(0, 6);
+}
+
 function buildEmotionalScenario(
     emotion: string,
     persona: Persona,
-    keywords: string[]
+    keywords: string[],
+    company: CompanyContext
 ): string {
+    // Generate activities dynamically from company context
+    const activities = generateActivitiesFromCompany(company);
     const timeframes = ['yesterday', 'last week', 'this morning', 'last night', 'earlier today', 'over the weekend'];
     const stakeholders = ['client', 'boss', 'team', 'stakeholder', 'investor', 'professor', 'manager'];
-    const activities = [
-        'making slides',
-        'building a deck',
-        'working on presentations',
-        'trying to make things look professional',
-        'formatting slides',
-        'creating a pitch deck'
-    ];
 
     const scenarios: Record<string, string[]> = {
         frustration: [
             `You spent ${randomInt(2, 8)} hours ${randomChoice(timeframes)} ${randomChoice(activities)} and it's still not working right.`,
-            `You have a ${randomChoice(stakeholders)} meeting ${randomChoice(['tomorrow', 'this afternoon', 'in 2 hours'])} and you're stressed about your slides.`,
+            `You have a ${randomChoice(stakeholders)} meeting ${randomChoice(['tomorrow', 'this afternoon', 'in 2 hours'])} and you're stressed about the results.`,
             `This is the ${randomOrdinal()} time this week you've dealt with this and you're honestly over it.`,
             `Your ${randomChoice(stakeholders)} asked for ${randomOrdinal()} revision and you just want to be done.`,
-            `You've been working on this presentation for ${randomInt(3, 10)} hours and it still looks bad.`
+            `You've been ${randomChoice(activities)} for ${randomInt(3, 10)} hours and it still doesn't look right.`
         ],
         curiosity: [
             `You've been ${randomChoice(activities)} for ${randomChoice(['6 months', 'a year', 'the past few months'])} and wondering if there's a better way.`,
             `You saw ${randomChoice(['someone on twitter', 'a reddit post', 'a colleague'])} talking about this and now you're curious how others handle it.`,
             `Your ${randomChoice(['coworker', 'friend', 'teammate'])} mentioned ${randomChoice(['a tool', 'an approach', 'a workflow'])} and you want to understand it better.`,
-            `You're doing research on how to ${randomChoice(['save time', 'work faster', 'be more efficient'])} with presentations.`
+            `You're doing research on how to ${randomChoice(['save time', 'work faster', 'be more efficient'])} with this.`
         ],
         excitement: [
-            `You just discovered something that might solve your ${randomChoice(['formatting', 'design', 'layout'])} issues.`,
+            `You just discovered something that might solve your workflow issues.`,
             `Something clicked ${randomChoice(timeframes)} and you want to share what worked.`,
-            `After ${randomChoice(['months', 'weeks', 'days'])} of struggling, you finally figured out a solution.`
+            `After ${randomChoice(['months', 'weeks', 'days'])} of struggling with ${randomChoice(activities)}, you finally figured out a solution.`
         ]
     };
 
@@ -105,14 +191,14 @@ export function buildPostPrompt(
 ): string {
     const subredditType = subreddit.formalityLevel < 0.4 ? 'casual' : subreddit.formalityLevel > 0.6 ? 'professional' : 'casual';
     const examples = getFormattedExamples('post', subredditType, template.emotion, 3);
-    const emotionalScenario = buildEmotionalScenario(template.emotion, persona, keywords);
+    const emotionalScenario = buildEmotionalScenario(template.emotion, persona, keywords, company);
     const emotionalContext = getEmotionalContext(template.emotion, persona);
     const formalityGuidance = getFormalityGuidance(persona);
     const targetQuery = keywords.length > 0 ? randomChoice(keywords) : null;
-    const relevantTopics = subreddit.commonTopics
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3)
-        .join(', ');
+
+    // Generate company-specific working context
+    const companyActivities = generateActivitiesFromCompany(company);
+    const workingContext = companyActivities.slice(0, 3).join(', ');
 
     return `You are ${persona.name}. ${persona.backstory}
 
@@ -156,7 +242,7 @@ export function buildPostPrompt(
 
 CONTEXT:
 • You're posting because: ${template.emotion === 'frustration' ? 'you need to vent and maybe get help' : 'you\'re genuinely curious and want input'}
-• You're working on: ${relevantTopics}
+• You're working on: ${workingContext}
 ${targetQuery ? `• Someone searching "${targetQuery}" should find this relatable` : ''}
 
 YOUR POST SHOULD:
@@ -205,8 +291,8 @@ function getPurposeInstructions(purpose: string, posterName: string, company: Co
 
         Good questions:
         • "wait are you working solo or with a team?"
-        • "how many slides are we talking?"
-        • "what kind of presentations? like sales decks or internal?"
+        • "how much volume are we talking?"
+        • "what is the specific use case?"
 
         ✓ Show genuine curiosity
         ✓ Keep it SHORT (one question only)

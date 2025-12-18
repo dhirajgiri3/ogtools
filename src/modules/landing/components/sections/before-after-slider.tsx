@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Card } from '@/shared/components/ui/layout/card';
 import { Badge } from '@/shared/components/ui/feedback/badge';
-import { Sparkles, Bot, User, GripVertical } from 'lucide-react';
+import { Bot, User, GripVertical } from 'lucide-react';
 import { motion, useSpring, useTransform } from 'framer-motion';
 
 /**

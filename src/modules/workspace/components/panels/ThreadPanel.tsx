@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { X, MessageSquare, Copy, RotateCcw, Check, Trash2, Edit2, Clock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, MessageSquare, Copy, RotateCcw, Check, Trash2, Edit2, Clock, Star, Wand2, TrendingUp, AlertCircle } from 'lucide-react';
 import { Button } from '@/shared/components/ui/inputs/button';
 import { Badge } from '@/shared/components/ui/feedback/badge';
 
@@ -98,41 +98,62 @@ export function ThreadPanel({
             ? 'bg-amber-500'
             : 'bg-red-500';
 
+    const qualityColorClass = conv.qualityScore.overall >= 90
+        ? 'emerald'
+        : conv.qualityScore.overall >= 80
+            ? 'amber'
+            : 'red';
+
     return (
         <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="h-full flex flex-col bg-white"
         >
-            {/* Header */}
-            <div className="flex-shrink-0 px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-white">
+            {/* Minimal Header */}
+            <div className="flex-shrink-0 px-6 py-4 border-b border-zinc-200 bg-white flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     {/* Subreddit Badge */}
-                    <Badge
-                        variant="outline"
-                        className="bg-white text-zinc-700 border-zinc-200 font-semibold tracking-wide shadow-sm"
-                    >
+                    <div className="px-2 py-0.5 rounded text-xs font-bold bg-zinc-100 text-zinc-900 border border-zinc-200">
                         r/{conv.subreddit}
-                    </Badge>
+                    </div>
 
-                    {/* Quality Score */}
-                    <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${qualityColor}`} />
-                        <span className="text-sm font-semibold text-zinc-900 tabular-nums">
-                            {conv.qualityScore.overall}
-                        </span>
-                        <span className="text-xs text-zinc-400 font-medium">quality</span>
+                    {/* Quality Score Badge */}
+                    <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold border ${conv.qualityScore.overall >= 90
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : conv.qualityScore.overall >= 80
+                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                            : 'bg-red-50 text-red-700 border-red-200'
+                        }`}>
+                        {conv.qualityScore.overall >= 90 ? (
+                            <Star className="w-3 h-3 fill-emerald-700 text-emerald-700" />
+                        ) : (
+                            <TrendingUp className="w-3 h-3" />
+                        )}
+                        <span>{conv.qualityScore.overall}</span>
                     </div>
                 </div>
 
-                <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={onClose}
-                    className="hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600 rounded-lg h-8 w-8 transition-colors"
-                >
-                    <X className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-zinc-400 flex items-center gap-1.5 bg-zinc-50 px-2 py-1 rounded">
+                        <Clock className="w-3 h-3" />
+                        {new Date(scheduled.scheduledTime).toLocaleString('en-US', {
+                            weekday: 'short',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                        })}
+                    </span>
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={onClose}
+                        className="hover:bg-zinc-100 text-zinc-400 hover:text-zinc-900 rounded-lg h-7 w-7 transition-all"
+                    >
+                        <X className="w-4 h-4" />
+                    </Button>
+                </div>
             </div>
 
 
@@ -304,50 +325,70 @@ export function ThreadPanel({
                 )}
             </div>
 
-            {/* Footer Actions */}
-            <div className="flex-shrink-0 p-4 border-t border-zinc-100 bg-white flex items-center gap-2">
-                <Button
-                    variant="outline"
-                    className="border-red-200 text-red-600 hover:bg-red-50"
-                    onClick={() => setShowDeleteConfirm(true)}
-                    disabled={isUpdating || isRegenerating}
-                >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                </Button>
-                <Button
-                    variant="outline"
-                    className="flex-1 bg-white hover:bg-zinc-50 border-zinc-200 text-zinc-700 h-10 shadow-sm rounded-lg font-medium text-sm transition-all hover:border-zinc-300"
-                    onClick={handleRegenerate}
-                    disabled={isUpdating || isRegenerating}
-                >
-                    <RotateCcw className={`w-4 h-4 mr-2 text-zinc-400 ${isRegenerating ? 'animate-spin' : ''}`} />
-                    {isRegenerating ? 'Regenerating...' : 'Regenerate'}
-                </Button>
-                <Button
-                    className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-white h-10 shadow-md rounded-lg font-medium text-sm transition-all hover:shadow-lg active:scale-[0.98]"
-                    onClick={() => {
-                        const fullThread = [
-                            conv.post.content,
-                            ...conv.topLevelComments.map(c => c.content),
-                            ...conv.replies.map(r => r.content)
-                        ].join('\n\n---\n\n');
-                        copyToClipboard(fullThread, 'full-thread');
-                    }}
-                    disabled={isUpdating || isRegenerating}
-                >
-                    {copiedId === 'full-thread' ? (
-                        <>
-                            <Check className="w-4 h-4 mr-2" />
-                            Copied!
-                        </>
-                    ) : (
-                        <>
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy Thread
-                        </>
-                    )}
-                </Button>
+            {/* Enhanced Footer Actions */}
+            <div className="flex-shrink-0 p-4 border-t border-zinc-200 bg-gradient-to-r from-zinc-50 to-white">
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        className="border-red-300 text-red-600 hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:text-white hover:border-transparent font-semibold shadow-sm transition-all h-10"
+                        onClick={() => setShowDeleteConfirm(true)}
+                        disabled={isUpdating || isRegenerating}
+                    >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className="flex-1 bg-white hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-500 hover:text-white border-zinc-300 text-zinc-700 h-10 shadow-sm rounded-lg font-semibold text-sm transition-all hover:border-transparent"
+                        onClick={handleRegenerate}
+                        disabled={isUpdating || isRegenerating}
+                    >
+                        {isRegenerating ? (
+                            <>
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                >
+                                    <Wand2 className="w-4 h-4 mr-2" />
+                                </motion.div>
+                                Regenerating...
+                            </>
+                        ) : (
+                            <>
+                                <Wand2 className="w-4 h-4 mr-2" />
+                                Regenerate
+                            </>
+                        )}
+                    </Button>
+                    <Button
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white h-10 shadow-sm rounded-lg font-bold text-sm transition-all active:scale-[0.98] group"
+                        onClick={() => {
+                            const fullThread = [
+                                conv.post.content,
+                                ...conv.topLevelComments.map(c => c.content),
+                                ...conv.replies.map(r => r.content)
+                            ].join('\n\n---\n\n');
+                            copyToClipboard(fullThread, 'full-thread');
+                        }}
+                        disabled={isUpdating || isRegenerating}
+                    >
+                        {copiedId === 'full-thread' ? (
+                            <motion.span
+                                initial={{ scale: 0.8 }}
+                                animate={{ scale: 1 }}
+                                className="flex items-center gap-2"
+                            >
+                                <Check className="w-4 h-4" />
+                                Copied!
+                            </motion.span>
+                        ) : (
+                            <span className="flex items-center gap-2">
+                                <Copy className="w-4 h-4" />
+                                Copy Full Thread
+                            </span>
+                        )}
+                    </Button>
+                </div>
             </div>
 
             {/* Delete Confirmation Dialog */}

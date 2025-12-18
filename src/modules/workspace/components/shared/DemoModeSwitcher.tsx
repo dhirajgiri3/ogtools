@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
+import { PlayCircle } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -59,7 +59,7 @@ export function DemoModeSwitcher({ currentDemo }: DemoModeSwitcherProps) {
                     size="sm"
                     className="h-7 gap-1.5 px-2.5 text-xs border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300"
                 >
-                    <Sparkles className="w-3 h-3" />
+                    <PlayCircle className="w-3 h-3" />
                     <span className="font-medium">
                         {currentScenario ? currentScenario.name : 'Demo Mode'}
                     </span>
