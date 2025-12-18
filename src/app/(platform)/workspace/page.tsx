@@ -592,33 +592,33 @@ function WorkspaceContent() {
     return (
         <div className="h-screen flex flex-col bg-zinc-50/30 overflow-hidden font-sans">
             {/* Header - Minimal Design */}
-            <header className="flex-shrink-0 h-14 bg-white border-b border-zinc-200 flex items-center justify-between px-4 z-40 relative">
-                <div className="flex items-center gap-3">
+            <header className="flex-shrink-0 h-12 sm:h-14 bg-white border-b border-zinc-200 flex items-center justify-between px-2 sm:px-4 z-40 relative">
+                <div className="flex items-center gap-1.5 sm:gap-3">
                     {/* Setup Toggle */}
                     <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => setSetupPanelOpen(!setupPanelOpen)}
-                        className={`h-8 w-8 rounded-lg transition-all ${setupPanelOpen
+                        className={`h-7 w-7 sm:h-8 sm:w-8 rounded-lg transition-all ${setupPanelOpen
                             ? 'bg-zinc-900 text-white hover:bg-zinc-800 hover:text-white'
                             : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100'}`}
                     >
-                        {setupPanelOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4" />}
+                        {setupPanelOpen ? <PanelLeftClose className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <PanelLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                     </Button>
 
                     {/* Divider */}
-                    <div className="w-px h-6 bg-zinc-200" />
+                    <div className="hidden sm:block w-px h-6 bg-zinc-200" />
 
                     {/* Branding */}
-                    <Link href="/" className="flex items-center gap-2.5 group">
-                        <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center">
+                    <Link href="/" className="flex items-center gap-1.5 sm:gap-2.5 group">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-zinc-900 flex items-center justify-center">
                             <span className="text-white font-bold text-xs">RM</span>
                         </div>
-                        <span className="font-semibold text-sm text-zinc-900">Reddit Mastermind</span>
+                        <span className="hidden md:inline font-semibold text-sm text-zinc-900">Reddit Mastermind</span>
                     </Link>
 
                     {isDemo && (
-                        <div className="ml-2">
+                        <div className="hidden lg:block ml-2">
                             <DemoModeSwitcher currentDemo={isDemo ? 'slideforge' : undefined} />
                         </div>
                     )}
@@ -627,40 +627,40 @@ function WorkspaceContent() {
                 {/* Center Controls - Week Nav */}
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     {allWeeks.length > 0 ? (
-                        <div className="flex items-center bg-white rounded-xl p-1 border border-zinc-200 shadow-sm gap-1">
+                        <div className="flex items-center bg-white rounded-lg sm:rounded-xl p-0.5 sm:p-1 border border-zinc-200 shadow-sm gap-0.5 sm:gap-1">
                             <Button
                                 variant="ghost"
                                 size="icon-sm"
                                 onClick={() => setCurrentWeekIndex(Math.max(0, currentWeekIndex - 1))}
                                 disabled={currentWeekIndex === 0}
-                                className="h-7 w-7 rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 disabled:opacity-30 disabled:hover:bg-transparent"
+                                className="h-6 w-6 sm:h-7 sm:w-7 rounded-md sm:rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 disabled:opacity-30 disabled:hover:bg-transparent"
                             >
-                                <ChevronLeft className="w-4 h-4" />
+                                <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                             </Button>
-                            <div className="flex flex-col items-center px-4">
-                                <span className="text-xs font-bold text-zinc-900 tabular-nums">
+                            <div className="flex flex-col items-center px-2 sm:px-4">
+                                <span className="text-[10px] sm:text-xs font-bold text-zinc-900 tabular-nums">
                                     Week {calendar?.weekNumber || currentWeekIndex + 1}
                                 </span>
-                                <span className="text-[10px] text-zinc-400">of {allWeeks.length}</span>
+                                <span className="hidden sm:inline text-[10px] text-zinc-400">of {allWeeks.length}</span>
                             </div>
                             <Button
                                 variant="ghost"
                                 size="icon-sm"
                                 onClick={() => setCurrentWeekIndex(Math.min(allWeeks.length - 1, currentWeekIndex + 1))}
                                 disabled={currentWeekIndex === allWeeks.length - 1}
-                                className="h-7 w-7 rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 disabled:opacity-30 disabled:hover:bg-transparent"
+                                className="h-6 w-6 sm:h-7 sm:w-7 rounded-md sm:rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 disabled:opacity-30 disabled:hover:bg-transparent"
                             >
-                                <ChevronRight className="w-4 h-4" />
+                                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                             </Button>
 
                             {/* Week Actions Dropdown */}
-                            <div className="w-px h-5 bg-zinc-200 mx-1" />
+                            <div className="hidden sm:block w-px h-5 bg-zinc-200 mx-1" />
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
                                         variant="ghost"
                                         size="icon-sm"
-                                        className="h-7 w-7 rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
+                                        className="hidden sm:flex h-7 w-7 rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
                                     >
                                         <MoreVertical className="w-4 h-4" />
                                     </Button>
@@ -686,22 +686,22 @@ function WorkspaceContent() {
                             </DropdownMenu>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2 text-sm">
-                            <CalendarIcon className="w-4 h-4 text-zinc-400" />
-                            <span className="font-medium text-zinc-500">New Campaign</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                            <CalendarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400" />
+                            <span className="hidden sm:inline font-medium text-zinc-500">New Campaign</span>
                         </div>
                     )}
                 </div>
 
                 {/* Right Actions */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                     {allWeeks.length > 0 && (
                         <>
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setAnalyticsOpen(!analyticsOpen)}
-                                className={`h-8 text-xs font-medium rounded-lg transition-all ${analyticsOpen
+                                className={`hidden md:flex h-8 text-xs font-medium rounded-lg transition-all ${analyticsOpen
                                     ? 'bg-zinc-900 text-white hover:bg-zinc-800 hover:text-white'
                                     : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
                                     }`}
@@ -711,17 +711,17 @@ function WorkspaceContent() {
                             </Button>
                             <Button
                                 variant="ghost"
-                                size="sm"
+                                size="icon-sm"
                                 onClick={() => setExportDialogOpen(true)}
-                                className="h-8 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 rounded-lg"
+                                className="h-7 w-7 sm:h-8 sm:w-auto sm:px-3 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 rounded-lg"
                             >
-                                <Download className="w-3.5 h-3.5 mr-1.5" />
-                                Export
+                                <Download className="w-3.5 h-3.5 sm:mr-1.5" />
+                                <span className="hidden sm:inline">Export</span>
                             </Button>
-                            <div className="w-px h-6 bg-zinc-200 mx-1" />
+                            <div className="hidden sm:block w-px h-6 bg-zinc-200 mx-1" />
                         </>
                     )}
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-zinc-100 to-zinc-50 border border-zinc-200 flex items-center justify-center text-xs font-semibold text-zinc-600 shadow-sm">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-zinc-100 to-zinc-50 border border-zinc-200 flex items-center justify-center text-xs font-semibold text-zinc-600 shadow-sm">
                         DG
                     </div>
                 </div>

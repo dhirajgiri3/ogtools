@@ -42,19 +42,19 @@ export default function HomePage() {
     <main className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
               <span className="text-white font-bold text-xs">RM</span>
             </div>
-            <span className="font-semibold text-gray-900 text-lg tracking-tight">Reddit Mastermind</span>
+            <span className="font-semibold text-gray-900 text-base sm:text-lg tracking-tight">Reddit Mastermind</span>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/workspace">
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full px-5 transition-colors">
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full px-4 sm:px-5 text-xs sm:text-sm transition-colors h-9 sm:h-10">
                 Get Started
-                <ArrowRight className="ml-1.5 w-3.5 h-3.5" />
+                <ArrowRight className="ml-1 sm:ml-1.5 w-3 h-3 sm:w-3.5 sm:h-3.5" />
               </Button>
             </Link>
           </div>
@@ -80,8 +80,8 @@ export default function HomePage() {
       </section>
 
       {/* Minimalistic Premium Footer */}
-      <footer className="bg-gray-50 py-4 px-6 flex items-center justify-center">
-        <p className="text-sm font-medium text-gray-400 flex items-center gap-1.5">
+      <footer className="bg-gray-50 py-3 sm:py-4 px-4 sm:px-6 flex items-center justify-center">
+        <p className="text-xs sm:text-sm font-medium text-gray-400 flex items-center gap-1.5 text-center">
           Developed with <span className="text-red-500">♥</span> by <span className="text-gray-900">Dhiraj Giri</span>
         </p>
       </footer>
